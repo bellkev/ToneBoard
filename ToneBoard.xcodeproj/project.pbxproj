@@ -11,7 +11,33 @@
 		0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D56A275C865500FFAD22 /* ContentView.swift */; };
 		0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A60D56C275C865700FFAD22 /* Assets.xcassets */; };
 		0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A60D56F275C865700FFAD22 /* Preview Assets.xcassets */; };
+		0A60D57D275C880200FFAD22 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */; };
+		0A60D581275C880200FFAD22 /* ToneBoardExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0A60D57F275C880200FFAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A60D55D275C865500FFAD22 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A60D579275C880200FFAD22;
+			remoteInfo = ToneBoardExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0A60D585275C880200FFAD22 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0A60D581275C880200FFAD22 /* ToneBoardExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0A60D565275C865500FFAD22 /* ToneBoard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToneBoard.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -19,10 +45,20 @@
 		0A60D56A275C865500FFAD22 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0A60D56C275C865700FFAD22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A60D56F275C865700FFAD22 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ToneBoardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		0A60D57E275C880200FFAD22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		0A60D562275C865500FFAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A60D577275C880200FFAD22 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -36,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				0A60D567275C865500FFAD22 /* ToneBoard */,
+				0A60D57B275C880200FFAD22 /* ToneBoardExtension */,
 				0A60D566275C865500FFAD22 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -44,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				0A60D565275C865500FFAD22 /* ToneBoard.app */,
+				0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,6 +105,15 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		0A60D57B275C880200FFAD22 /* ToneBoardExtension */ = {
+			isa = PBXGroup;
+			children = (
+				0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */,
+				0A60D57E275C880200FFAD22 /* Info.plist */,
+			);
+			path = ToneBoardExtension;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -77,15 +124,34 @@
 				0A60D561275C865500FFAD22 /* Sources */,
 				0A60D562275C865500FFAD22 /* Frameworks */,
 				0A60D563275C865500FFAD22 /* Resources */,
+				0A60D585275C880200FFAD22 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0A60D580275C880200FFAD22 /* PBXTargetDependency */,
 			);
 			name = ToneBoard;
 			productName = ToneBoard;
 			productReference = 0A60D565275C865500FFAD22 /* ToneBoard.app */;
 			productType = "com.apple.product-type.application";
+		};
+		0A60D579275C880200FFAD22 /* ToneBoardExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A60D582275C880200FFAD22 /* Build configuration list for PBXNativeTarget "ToneBoardExtension" */;
+			buildPhases = (
+				0A60D576275C880200FFAD22 /* Sources */,
+				0A60D577275C880200FFAD22 /* Frameworks */,
+				0A60D578275C880200FFAD22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ToneBoardExtension;
+			productName = ToneBoardExtension;
+			productReference = 0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -98,6 +164,9 @@
 				LastUpgradeCheck = 1310;
 				TargetAttributes = {
 					0A60D564275C865500FFAD22 = {
+						CreatedOnToolsVersion = 13.1;
+					};
+					0A60D579275C880200FFAD22 = {
 						CreatedOnToolsVersion = 13.1;
 					};
 				};
@@ -116,6 +185,7 @@
 			projectRoot = "";
 			targets = (
 				0A60D564275C865500FFAD22 /* ToneBoard */,
+				0A60D579275C880200FFAD22 /* ToneBoardExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -127,6 +197,13 @@
 			files = (
 				0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */,
 				0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A60D578275C880200FFAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,7 +219,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A60D576275C880200FFAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A60D57D275C880200FFAD22 /* KeyboardViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0A60D580275C880200FFAD22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A60D579275C880200FFAD22 /* ToneBoardExtension */;
+			targetProxy = 0A60D57F275C880200FFAD22 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0A60D571275C865700FFAD22 /* Debug */ = {
@@ -264,11 +357,13 @@
 		0A60D574275C865700FFAD22 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneBoard/Preview Content\"";
+				DEVELOPMENT_TEAM = DDQQ8DU784;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -292,11 +387,13 @@
 		0A60D575275C865700FFAD22 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneBoard/Preview Content\"";
+				DEVELOPMENT_TEAM = DDQQ8DU784;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -311,6 +408,56 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bellkev.ToneBoard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		0A60D583275C880200FFAD22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DDQQ8DU784;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ToneBoardExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ToneBoardExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bellkev.ToneBoard.ToneBoardExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0A60D584275C880200FFAD22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DDQQ8DU784;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ToneBoardExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ToneBoardExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bellkev.ToneBoard.ToneBoardExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -334,6 +481,15 @@
 			buildConfigurations = (
 				0A60D574275C865700FFAD22 /* Debug */,
 				0A60D575275C865700FFAD22 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A60D582275C880200FFAD22 /* Build configuration list for PBXNativeTarget "ToneBoardExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A60D583275C880200FFAD22 /* Debug */,
+				0A60D584275C880200FFAD22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
