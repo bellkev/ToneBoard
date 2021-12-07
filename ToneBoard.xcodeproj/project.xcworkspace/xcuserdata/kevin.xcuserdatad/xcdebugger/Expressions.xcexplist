@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "closure #1 in Key.init(label:insert:):KeyboardView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in KeyboardViewController.viewDidLoad():KeyboardViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.view.children">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

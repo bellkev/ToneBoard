@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import SwiftUI
 
 class KeyboardViewController: UIInputViewController {
 
-    @IBOutlet var nextKeyboardButton: UIButton!
+//    @IBOutlet var nextKeyboardButton: UIButton!
     
     override func updateViewConstraints() {
         super.updateViewConstraints()
@@ -21,23 +22,26 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        view.backgroundColor = UIColor(red:100, green:0, blue: 0, alpha: 1)
-        self.nextKeyboardButton = UIButton(type: .system)
+        let kbView = KeyboardView(insert: {(s: String) -> Void in
+            self.textDocumentProxy.insertText(s)})
+        let uhc = UIHostingController(rootView: kbView)
+        self.view.addSubview(uhc.view)
         
-        self.nextKeyboardButton.setTitle(NSLocalizedString("Next Keyboard", comment: "Title for 'Next Keyboard' button"), for: [])
-        self.nextKeyboardButton.sizeToFit()
-        self.nextKeyboardButton.translatesAutoresizingMaskIntoConstraints = false
+
         
-        self.nextKeyboardButton.addTarget(self, action: #selector(handleInputModeList(from:with:)), for: .allTouchEvents)
+        let nextKeyboardAction = #selector(handleInputModeList(from:with:))
+
+        uhc.view.translatesAutoresizingMaskIntoConstraints = false
+        uhc.view.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        uhc.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+        uhc.view.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
+        uhc.view.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
+        debugPrint("uhc view size:", uhc.view.frame)
         
-        self.view.addSubview(self.nextKeyboardButton)
-        
-        self.nextKeyboardButton.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-        self.nextKeyboardButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
     }
     
     override func viewWillLayoutSubviews() {
-        self.nextKeyboardButton.isHidden = !self.needsInputModeSwitchKey
+//        self.nextKeyboardButton.isHidden = !self.needsInputModeSwitchKey
         super.viewWillLayoutSubviews()
     }
     
@@ -55,7 +59,7 @@ class KeyboardViewController: UIInputViewController {
         } else {
             textColor = UIColor.black
         }
-        self.nextKeyboardButton.setTitleColor(textColor, for: [])
+//        self.nextKeyboardButton.setTitleColor(textColor, for: [])
     }
 
 }

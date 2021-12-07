@@ -13,6 +13,8 @@
 		0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A60D56F275C865700FFAD22 /* Preview Assets.xcassets */; };
 		0A60D57D275C880200FFAD22 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */; };
 		0A60D581275C880200FFAD22 /* ToneBoardExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0A60D60C275D80CA00FFAD22 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
+		0A60D60D275D80CA00FFAD22 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,7 @@
 		0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ToneBoardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
 		0A60D57E275C880200FFAD22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +74,7 @@
 		0A60D55C275C865500FFAD22 = {
 			isa = PBXGroup;
 			children = (
+				0A60D60A275D80B900FFAD22 /* ToneBoardShared */,
 				0A60D567275C865500FFAD22 /* ToneBoard */,
 				0A60D57B275C880200FFAD22 /* ToneBoardExtension */,
 				0A60D566275C865500FFAD22 /* Products */,
@@ -112,6 +116,14 @@
 				0A60D57E275C880200FFAD22 /* Info.plist */,
 			);
 			path = ToneBoardExtension;
+			sourceTree = "<group>";
+		};
+		0A60D60A275D80B900FFAD22 /* ToneBoardShared */ = {
+			isa = PBXGroup;
+			children = (
+				0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */,
+			);
+			path = ToneBoardShared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -214,6 +226,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A60D60C275D80CA00FFAD22 /* KeyboardView.swift in Sources */,
 				0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */,
 				0A60D569275C865500FFAD22 /* ToneBoardApp.swift in Sources */,
 			);
@@ -224,6 +237,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A60D57D275C880200FFAD22 /* KeyboardViewController.swift in Sources */,
+				0A60D60D275D80CA00FFAD22 /* KeyboardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
