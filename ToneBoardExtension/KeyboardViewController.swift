@@ -34,9 +34,7 @@ class KeyboardViewController: UIInputViewController {
         uhc.view.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
         uhc.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
         uhc.view.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-        uhc.view.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-        debugPrint("uhc view size:", uhc.view.frame)
-        
+        uhc.view.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true        
     }
     
     override func viewWillLayoutSubviews() {

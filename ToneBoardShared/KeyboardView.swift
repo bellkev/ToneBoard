@@ -10,7 +10,6 @@ import SwiftUI
 struct KeyView: View {
     let label: String
     let handler: () -> Void
-    let textColor = Color.white
     
     init(label: String, handler: @escaping () -> Void) {
         self.label = label
@@ -58,37 +57,46 @@ struct KeyboardView: View {
     
     let proxy: UITextDocumentProxy
     
-    @State private var marked = ""
+    @State var rawInput = ""
     
-    init(proxy: UITextDocumentProxy) {
-        self.proxy = proxy
+    var candidates: String {
+        let input = ToneBoardInput(rawInput)
+        return input.syllables.joined(separator: " ") + " " + input.remainder
     }
     
-    
     func updateMarked() {
-        proxy.setMarkedText(marked, selectedRange: NSMakeRange(marked.count, 0))
+        proxy.setMarkedText(rawInput, selectedRange: NSMakeRange(rawInput.count, 0))
     }
     
     func insertAction(_ s: String) -> Void {
-        marked += s
+        rawInput += s
         updateMarked()
     }
     
     func delete() {
-        proxy.deleteBackward()
+        if rawInput.isEmpty {
+            proxy.deleteBackward()
+        } else {
+            rawInput.remove(at: rawInput.index(before: rawInput.endIndex))
+            updateMarked()
+        }
     }
     
     func commit() {
-        // Unclear how unmarkText is actually supposed to work--unmarking does not update the UI, but this seems to behave as expected
-        // TODO: Handle backspace while text is marked
-        proxy.insertText(marked)
-        self.marked = ""
+        // unmarkText does not seem to update the UI correctly in some cases (e.g. Reminders app search bar or Safari location bar)
+        // but works in other cases
+        proxy.insertText(rawInput)
+        rawInput = ""
+        updateMarked()
     }
 
     
     var body: some View {
         GeometryReader {geo in
             VStack(spacing: 0) {
+                Text(candidates)
+                    .frame(minHeight: 20)
+                    .padding(10)
                 RowView(keys: "qwertyuiop", insert: insertAction)
                 RowView(keys: "asdfghjkl", insert: insertAction)
                     .frame(width: geo.size.width * 0.9)
@@ -103,7 +111,7 @@ struct KeyboardView: View {
                     Button("Commit", action: commit)
                 }
             }
-        }.frame(height:200)
+        }.frame(height:250)
     }
     
 }
@@ -148,7 +156,7 @@ class MockTextProxy: NSObject, UITextDocumentProxy {
 struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
         let p = MockTextProxy()
-        KeyboardView(proxy:p)
+        KeyboardView(proxy:p, rawInput: "foo1baz2abcas")
             .previewInterfaceOrientation(.portraitUpsideDown)
     }
 }
