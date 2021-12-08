@@ -24,9 +24,9 @@ struct KeyView: View {
                 Text(label)
             }
         }
-        .foregroundColor(Color.white)
+        .foregroundColor(.white)
         .frame(minWidth: 0, maxWidth: 50, minHeight: 40)
-        .background(Color.gray)
+        .background(.gray)
         .cornerRadius(4)
         .padding(5)
     }
@@ -57,15 +57,23 @@ struct KeyboardView: View {
     
     let proxy: UITextDocumentProxy
     
+    let dict: CandidateDict
+    
     @State var rawInput = ""
     
-    var candidates: String {
+    var candidates: [String] {
         let input = ToneBoardInput(rawInput)
-        return input.syllables.joined(separator: " ") + " " + input.remainder
+        return dict.candidates(input.syllables)
     }
     
     func updateMarked() {
-        proxy.setMarkedText(rawInput, selectedRange: NSMakeRange(rawInput.count, 0))
+        let input = ToneBoardInput(rawInput)
+        var temp = input.syllables
+        if !input.remainder.isEmpty {
+            temp += [input.remainder]
+        }
+        let tempStr = temp.joined(separator: " ")
+        proxy.setMarkedText(tempStr, selectedRange: NSMakeRange(tempStr.count, 0))
     }
     
     func insertAction(_ s: String) -> Void {
@@ -89,26 +97,42 @@ struct KeyboardView: View {
         rawInput = ""
         updateMarked()
     }
+    
+    func selectCandidate(_ candidate: String) {
+        proxy.insertText(candidate)
+        rawInput = ""
+        updateMarked()
+    }
 
     
     var body: some View {
-        GeometryReader {geo in
-            VStack(spacing: 0) {
-                Text(candidates)
-                    .frame(minHeight: 20)
-                    .padding(10)
-                RowView(keys: "qwertyuiop", insert: insertAction)
-                RowView(keys: "asdfghjkl", insert: insertAction)
-                    .frame(width: geo.size.width * 0.9)
+        VStack {
+            ScrollView(.horizontal) {
                 HStack {
-                    KeyView(label: "delete.backward", handler: delete)
-                    RowView(keys: "zxcvbnm", insert: insertAction)
-                        .frame(width: geo.size.width * 0.7)
-                    KeyView(label: "delete.backward", handler: delete)
-                }
-                HStack {
-                    RowView(keys: "12345", insert: insertAction)
-                    Button("Commit", action: commit)
+                    ForEach(candidates, id: \.self) { c in
+                        Button(action: {selectCandidate(c)}) {
+                            Text(c)
+                        }
+                        .padding(10)
+                        .foregroundColor(Color(UIColor.label))
+                    }
+                }.frame(height: 40)
+            }
+            GeometryReader {geo in
+                VStack(spacing: 0) {
+                    RowView(keys: "qwertyuiop", insert: insertAction)
+                    RowView(keys: "asdfghjkl", insert: insertAction)
+                        .frame(width: geo.size.width * 0.9)
+                    HStack {
+                        KeyView(label: "delete.backward", handler: delete)
+                        RowView(keys: "zxcvbnm", insert: insertAction)
+                            .frame(width: geo.size.width * 0.7)
+                        KeyView(label: "delete.backward", handler: delete)
+                    }
+                    HStack {
+                        RowView(keys: "12345", insert: insertAction)
+                        Button("Commit", action: commit)
+                    }
                 }
             }
         }.frame(height:250)
@@ -149,14 +173,19 @@ class MockTextProxy: NSObject, UITextDocumentProxy {
     
     func deleteBackward() {
     }
-    
-    
+}
+
+struct MockDict: CandidateDict {
+    func candidates(_ syllables: [String]) -> [String] {
+        ["不", "部", "步", "布", "簿", "埔", "歩", "怖", "埠", "埗", "鈈", "蔀", "吥", "鈽", "佈", "歨", "餔", "篰", "悑", "捗", "瓿"]
+    }
 }
 
 struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
         let p = MockTextProxy()
-        KeyboardView(proxy:p, rawInput: "foo1baz2abcas")
+        let d = MockDict()
+        KeyboardView(proxy: p, dict: d, rawInput: "foo1baz2abcas")
             .previewInterfaceOrientation(.portraitUpsideDown)
     }
 }

@@ -22,7 +22,7 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        let kbView = KeyboardView(proxy: self.textDocumentProxy)
+        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: SimpleCandidateDict())
         let uhc = UIHostingController(rootView: kbView)
         self.view.addSubview(uhc.view)
         
