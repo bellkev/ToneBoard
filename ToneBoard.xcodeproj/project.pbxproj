@@ -10,6 +10,7 @@
 		0A46C18627601E0F0079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A46C18727601E0F0079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A46C18F27601EAF0079EF13 /* ToneBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18E27601EAF0079EF13 /* ToneBoardTests.swift */; };
+		0A46C1A3276061650079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A60D569275C865500FFAD22 /* ToneBoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D568275C865500FFAD22 /* ToneBoardApp.swift */; };
 		0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D56A275C865500FFAD22 /* ContentView.swift */; };
 		0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A60D56C275C865700FFAD22 /* Assets.xcassets */; };
@@ -226,7 +227,6 @@
 				TargetAttributes = {
 					0A46C18B27601EAF0079EF13 = {
 						CreatedOnToolsVersion = 13.1;
-						TestTargetID = 0A60D564275C865500FFAD22;
 					};
 					0A60D564275C865500FFAD22 = {
 						CreatedOnToolsVersion = 13.1;
@@ -287,6 +287,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A46C1A3276061650079EF13 /* ToneBoardInput.swift in Sources */,
 				0A46C18F27601EAF0079EF13 /* ToneBoardTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -331,7 +332,6 @@
 		0A46C19327601EAF0079EF13 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDQQ8DU784;
@@ -345,17 +345,16 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bellkev.ToneBoardTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ToneBoard.app/ToneBoard";
 			};
 			name = Debug;
 		};
 		0A46C19427601EAF0079EF13 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDQQ8DU784;
@@ -369,10 +368,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bellkev.ToneBoardTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ToneBoard.app/ToneBoard";
 			};
 			name = Release;
 		};
