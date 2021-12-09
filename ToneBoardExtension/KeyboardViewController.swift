@@ -22,14 +22,16 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: JsonCandidateDict())
+        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: JsonCandidateDict(), setupNextKeyboardButton: {(_ button: UIButton) -> Void in
+            let action = #selector(self.handleInputModeList(from:with:))
+            button.addTarget(self, action: action, for: .allTouchEvents)
+        })
         let uhc = UIHostingController(rootView: kbView)
         uhc.view.backgroundColor = .clear
         self.view.addSubview(uhc.view)
         
 
         
-        let nextKeyboardAction = #selector(handleInputModeList(from:with:))
 
         uhc.view.translatesAutoresizingMaskIntoConstraints = false
         uhc.view.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true

@@ -7,6 +7,25 @@
 
 import SwiftUI
 
+
+struct NextKeyboardButton: UIViewRepresentable {
+    
+    let button: UIButton
+    
+    init(setup: (UIButton) -> Void) {
+        button = UIButton()
+        button.backgroundColor = UIColor.red
+        setup(button)
+    }
+    
+    func makeUIView(context: Context) -> some UIView {
+        button
+    }
+    
+    func updateUIView(_ uiView: UIViewType, context: Context) {}
+}
+
+
 struct KeyView: View {
     let label: String
     let handler: () -> Void
@@ -19,8 +38,9 @@ struct KeyView: View {
     var body: some View {
         Button(action: handler) {
             HStack {
-                if (label.contains(".") && label.count > 1) {
-                    Image(systemName: label)
+                if label.starts(with: "SF:") {
+                    let name = label.split(separator: ":")[1]
+                    Image(systemName: String(name))
                 } else {
                     Text(label)
                 }
@@ -68,6 +88,8 @@ struct KeyboardView: View {
     let dict: CandidateDict
     
     @State var rawInput = ""
+    
+    let setupNextKeyboardButton: (UIButton) -> Void
     
     var candidates: [String] {
         let input = ToneBoardInput(rawInput)
@@ -143,12 +165,14 @@ struct KeyboardView: View {
                         KeyView(label: "123", handler: {})
                         RowView(keys: "zxcvbnm", insert: insertAction)
                             .frame(width: geo.size.width * 0.7)
-                        KeyView(label: "delete.backward", handler: delete)
+                        KeyView(label: "SF:delete.backward", handler: delete)
                     }
                     HStack {
-                        KeyView(label: "return", handler: newLine)
+//                        KeyView(label: "SF:globe", handler: newLine)
+                        NextKeyboardButton(setup: setupNextKeyboardButton)
+                            .frame(width: 75)
                         RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
-                                       ("5", "5"), (".", ".")], insert: insertAction)
+                                       ("5", "5")], insert: insertAction)
                         KeyView(label: "return", handler: newLine)
                     }
                 }
@@ -203,7 +227,6 @@ struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
         let p = MockTextProxy()
         let d = MockDict()
-        KeyboardView(proxy: p, dict: d, rawInput: "foo1baz2abcas")
-            .previewInterfaceOrientation(.portraitUpsideDown)
+        KeyboardView(proxy: p, dict: d, rawInput: "foo1baz2abcas", setupNextKeyboardButton: {_ in})
     }
 }
