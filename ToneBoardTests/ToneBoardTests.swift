@@ -21,5 +21,11 @@ class ToneBoardTests: XCTestCase {
         let candidates = dict.candidates(["fei1", "chang2"])
         assert(candidates == ["非常"])
     }
+    
+    func testLoadDict() throws {
+        let dict = JsonCandidateDict()
+        let candidates = dict.candidates(["fei1", "chang2"])
+        assert(candidates == ["非常"])
+    }
 
 }

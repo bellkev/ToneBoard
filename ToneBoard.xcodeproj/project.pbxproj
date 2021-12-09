@@ -22,6 +22,9 @@
 		0A60D581275C880200FFAD22 /* ToneBoardExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0A60D60C275D80CA00FFAD22 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
 		0A60D60D275D80CA00FFAD22 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
+		0A6DDF97276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
+		0A6DDF98276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
+		0A6DDF99276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +72,7 @@
 		0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
 		0A60D57E275C880200FFAD22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
+		0A6DDF96276150940088D783 /* dict.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dict.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +111,7 @@
 		0A60D55C275C865500FFAD22 = {
 			isa = PBXGroup;
 			children = (
+				0A6DDF96276150940088D783 /* dict.json */,
 				0A60D60A275D80B900FFAD22 /* ToneBoardShared */,
 				0A60D567275C865500FFAD22 /* ToneBoard */,
 				0A60D57B275C880200FFAD22 /* ToneBoardExtension */,
@@ -232,6 +237,7 @@
 				TargetAttributes = {
 					0A46C18B27601EAF0079EF13 = {
 						CreatedOnToolsVersion = 13.1;
+						TestTargetID = 0A60D564275C865500FFAD22;
 					};
 					0A60D564275C865500FFAD22 = {
 						CreatedOnToolsVersion = 13.1;
@@ -266,6 +272,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A6DDF99276150940088D783 /* dict.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */,
+				0A6DDF97276150940088D783 /* dict.json in Resources */,
 				0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -282,6 +290,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A6DDF98276150940088D783 /* dict.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,6 +349,7 @@
 		0A46C19327601EAF0079EF13 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDQQ8DU784;
@@ -357,12 +367,14 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ToneBoard.app/ToneBoard";
 			};
 			name = Debug;
 		};
 		0A46C19427601EAF0079EF13 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDQQ8DU784;
@@ -380,6 +392,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ToneBoard.app/ToneBoard";
 			};
 			name = Release;
 		};

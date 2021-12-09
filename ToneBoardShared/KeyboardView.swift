@@ -18,36 +18,44 @@ struct KeyView: View {
     
     var body: some View {
         Button(action: handler) {
-            if label.contains(".") {
-                Image(systemName: label)
-            } else {
-                Text(label)
+            HStack {
+                if (label.contains(".") && label.count > 1) {
+                    Image(systemName: label)
+                } else {
+                    Text(label)
+                }
             }
+            .foregroundColor(.white)
+            .frame(minWidth: 0, maxWidth: 60, minHeight: 40)
+            .background(.gray)
+            .cornerRadius(4)
+            .padding(5)
         }
-        .foregroundColor(.white)
-        .frame(minWidth: 0, maxWidth: 50, minHeight: 40)
-        .background(.gray)
-        .cornerRadius(4)
-        .padding(5)
+
     }
 }
 
 
 struct RowView: View {
     
-    let keys: [String]
+    let keys: [(String, String)]
+    
     let insert: (String) -> Void
     
     init(keys: String, insert: @escaping (String) -> Void) {
-        self.keys = Array(keys).map {String($0)}
         self.insert = insert
+        self.keys = keys.map {(String($0), String($0))}
     }
     
+    init(keys: [(String, String)], insert: @escaping (String) -> Void) {
+        self.insert = insert
+        self.keys = keys
+    }
     
     var body: some View {
         HStack(spacing: 0){
-            ForEach(keys, id: \.self) { k in
-                KeyView(label: k, handler: {insert(k)})
+            ForEach(keys, id: \.0) { k in
+                KeyView(label: k.0, handler: {insert(k.1)})
             }
         }
     }
@@ -103,11 +111,19 @@ struct KeyboardView: View {
         rawInput = ""
         updateMarked()
     }
+    
+    func newLine() {
+        if rawInput.isEmpty {
+            proxy.insertText("\n")
+        } else {
+            commit()
+        }
+    }
 
     
     var body: some View {
         VStack {
-            ScrollView(.horizontal) {
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(candidates, id: \.self) { c in
                         Button(action: {selectCandidate(c)}) {
@@ -124,14 +140,16 @@ struct KeyboardView: View {
                     RowView(keys: "asdfghjkl", insert: insertAction)
                         .frame(width: geo.size.width * 0.9)
                     HStack {
-                        KeyView(label: "delete.backward", handler: delete)
+                        KeyView(label: "123", handler: {})
                         RowView(keys: "zxcvbnm", insert: insertAction)
                             .frame(width: geo.size.width * 0.7)
                         KeyView(label: "delete.backward", handler: delete)
                     }
                     HStack {
-                        RowView(keys: "12345", insert: insertAction)
-                        Button("Commit", action: commit)
+                        KeyView(label: "return", handler: newLine)
+                        RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
+                                       ("5", "5"), (".", ".")], insert: insertAction)
+                        KeyView(label: "return", handler: newLine)
                     }
                 }
             }

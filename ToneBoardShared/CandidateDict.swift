@@ -23,3 +23,18 @@ struct SimpleCandidateDict: CandidateDict {
         return readingCandidates[syllables.joined(separator: " ")] ?? []
     }
 }
+
+struct JsonCandidateDict: CandidateDict, Decodable {
+    let readingCandidates: [String: [String]]
+    
+    init() {
+        let bundlePath = Bundle.main.path(forResource: "dict", ofType: "json")
+        let jsonData = try! String(contentsOfFile: bundlePath!).data(using: .utf8)
+        let decoder = JSONDecoder()
+        readingCandidates = try! decoder.decode([String:[String]].self, from: jsonData!)
+    }
+    
+    func candidates(_ syllables: [String]) -> [String] {
+        return readingCandidates[syllables.joined(separator: " ")] ?? []
+    }
+}

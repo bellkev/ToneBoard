@@ -22,8 +22,9 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: SimpleCandidateDict())
+        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: JsonCandidateDict())
         let uhc = UIHostingController(rootView: kbView)
+        uhc.view.backgroundColor = .clear
         self.view.addSubview(uhc.view)
         
 
@@ -34,7 +35,7 @@ class KeyboardViewController: UIInputViewController {
         uhc.view.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
         uhc.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
         uhc.view.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-        uhc.view.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true        
+        uhc.view.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
     }
     
     override func viewWillLayoutSubviews() {

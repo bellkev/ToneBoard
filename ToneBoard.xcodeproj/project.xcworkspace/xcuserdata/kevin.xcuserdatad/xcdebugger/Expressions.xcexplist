@@ -13,5 +13,13 @@
             </PersistentString>
          </PersistentStrings>
       </ContextState>
+      <ContextState
+         contextName = "ToneBoardTests.testLoadDict():ToneBoardTests.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "Bundle.main.path(forResource: &quot;ToneBoardTests&quot;, ofType: &quot;swift&quot;)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
    </ContextStates>
 </VariablesViewState>
