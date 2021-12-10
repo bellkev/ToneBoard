@@ -37,7 +37,7 @@ struct KeyView: View {
     
     var body: some View {
         Button(action: handler) {
-            HStack {
+            Group {
                 if label.starts(with: "SF:") {
                     let name = label.split(separator: ":")[1]
                     Image(systemName: String(name))
@@ -45,9 +45,9 @@ struct KeyView: View {
                     Text(label)
                 }
             }
-            .foregroundColor(.white)
+            .foregroundColor(Color(UIColor.label))
             .frame(minWidth: 0, maxWidth: 60, minHeight: 40)
-            .background(.gray)
+            .background(.gray.opacity(0.7))
             .cornerRadius(4)
             .padding(5)
         }
@@ -150,11 +150,17 @@ struct KeyboardView: View {
                     ForEach(candidates, id: \.self) { c in
                         Button(action: {selectCandidate(c)}) {
                             Text(c)
+                                .font(.system(size: 20))
+                                .foregroundColor(Color(UIColor.label))
+                                .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                                .background(.gray.opacity(0.2))
+                                .cornerRadius(4)
+
                         }
-                        .padding(10)
-                        .foregroundColor(Color(UIColor.label))
                     }
-                }.frame(height: 40)
+                }
+                .frame(height: 45)
+                .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
             }
             GeometryReader {geo in
                 VStack(spacing: 0) {
@@ -177,7 +183,7 @@ struct KeyboardView: View {
                     }
                 }
             }
-        }.frame(height:250)
+        }.frame(height:260)
     }
     
 }
