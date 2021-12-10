@@ -85,7 +85,7 @@ struct KeyboardView: View {
     
     let proxy: UITextDocumentProxy
     
-    let dict: CandidateDict
+    var dict: CandidateDict
     
     @State var rawInput = ""
     

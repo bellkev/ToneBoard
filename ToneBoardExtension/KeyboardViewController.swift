@@ -22,7 +22,9 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: JsonCandidateDict(), setupNextKeyboardButton: {(_ button: UIButton) -> Void in
+        var kbView = KeyboardView(proxy: self.textDocumentProxy, dict: LazyCandidateDict(), setupNextKeyboardButton: {
+            [unowned self]
+            (_ button: UIButton) -> Void in
             let action = #selector(self.handleInputModeList(from:with:))
             button.addTarget(self, action: action, for: .allTouchEvents)
         })
