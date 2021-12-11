@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+struct ToneBoardStyle {
+    static let keyColor = Color.gray.opacity(0.7)
+    static let keyCornerRadius = 4.0
+    static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
+}
+
 
 struct CandidateView: View {
     let candidate: String
@@ -56,7 +62,10 @@ struct NextKeyboardButton: UIViewRepresentable {
     
     init(setup: (UIButton) -> Void) {
         button = UIButton()
-        button.backgroundColor = UIColor.red
+        button.backgroundColor = UIColor(ToneBoardStyle.keyColor)
+        button.setImage(UIImage(systemName: "globe"), for: .normal)
+        button.layer.cornerRadius = ToneBoardStyle.keyCornerRadius
+        button.tintColor = .label
         setup(button)
     }
     
@@ -92,9 +101,9 @@ struct KeyView: View {
             }
             .foregroundColor(Color(UIColor.label))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.gray.opacity(0.7))
-            .cornerRadius(4)
-            .padding(EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5))
+            .background(ToneBoardStyle.keyColor)
+            .cornerRadius(ToneBoardStyle.keyCornerRadius)
+            .padding(ToneBoardStyle.keyPadding)
         }
 
     }
@@ -130,11 +139,11 @@ struct KeyboardView: View {
     
     let proxy: UITextDocumentProxy
     
-    var dict: CandidateDict
+    let dict: CandidateDict
     
     @State private var rawInput = ""
 
-    let setupNextKeyboardButton: (UIButton) -> Void
+    var setupNextKeyboardButton: ((UIButton) -> Void)?
     
     var candidates: [String] {
         let input = ToneBoardInput(rawInput)
@@ -197,19 +206,25 @@ struct KeyboardView: View {
                         RowView(keys: "qwertyuiop", insert: insertAction)
                         RowView(keys: "asdfghjkl", insert: insertAction)
                             .frame(width: geo.size.width * 0.9)
-                        HStack(spacing: 0) {
-                            KeyView(label: "123", handler: {}, font: .system(size: 14)) //.frame(maxHeight: .infinity)
+                        HStack {
+                            KeyView(label: "SF:shift", handler: {})
                             RowView(keys: "zxcvbnm", insert: insertAction)
                                 .frame(width: geo.size.width * 0.7)
                             KeyView(label: "SF:delete.backward", handler: delete)
                         }
-                        HStack {
-    //                        KeyView(label: "SF:globe", handler: newLine)
-                            NextKeyboardButton(setup: setupNextKeyboardButton)
+                        HStack(spacing: 0) {
+                            HStack(spacing: 0) {
+                                KeyView(label: "123", handler: {}, font: .system(size: 14)) //.frame(maxHeight: .infinity)
+                                if let nextKeyboard = setupNextKeyboardButton {
+                                    NextKeyboardButton(setup: nextKeyboard)
+                                        .padding(ToneBoardStyle.keyPadding)
+                                }
+                            }.frame(width: geo.size.width * 0.25)
                             RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
                                            ("5", "5")], insert: insertAction)
                                 .frame(width: geo.size.width * 0.5)
                             KeyView(label: "return", handler: newLine, font: .system(size: 14))
+                                .frame(width: geo.size.width * 0.25)
                         }
                     }
 
@@ -266,14 +281,14 @@ struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
         let p = MockTextProxy()
         let d = MockDict()
-        let orientation = InterfaceOrientation.landscapeLeft
-//        let orientation = InterfaceOrientation.portrait
+//        let orientation = InterfaceOrientation.landscapeLeft
+        let orientation = InterfaceOrientation.portrait
         KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
             .previewInterfaceOrientation(orientation)
             .previewDevice("iPhone 8")
-        KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
-            .previewInterfaceOrientation(orientation)
-            .previewDevice("iPhone 12")
+//        KeyboardView(proxy: p, dict: d)
+//            .previewInterfaceOrientation(orientation)
+//            .previewDevice("iPhone 12")
         }
     
 }

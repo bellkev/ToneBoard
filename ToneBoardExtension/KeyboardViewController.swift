@@ -22,12 +22,17 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        var kbView = KeyboardView(proxy: self.textDocumentProxy, dict: LazyCandidateDict(), setupNextKeyboardButton: {
-            [unowned self]
-            (_ button: UIButton) -> Void in
-            let action = #selector(self.handleInputModeList(from:with:))
-            button.addTarget(self, action: action, for: .allTouchEvents)
-        })
+        var nextKeyboard: ((UIButton) -> Void)?
+        if self.needsInputModeSwitchKey {
+            nextKeyboard =
+            {
+                [unowned self]
+                (_ button: UIButton) -> Void in
+                let action = #selector(self.handleInputModeList(from:with:))
+                button.addTarget(self, action: action, for: .allTouchEvents)
+            }
+        }
+        var kbView = KeyboardView(proxy: self.textDocumentProxy, dict: LazyCandidateDict(), setupNextKeyboardButton: nextKeyboard)
         let uhc = UIHostingController(rootView: kbView)
         uhc.view.backgroundColor = .clear
         self.view.addSubview(uhc.view)
