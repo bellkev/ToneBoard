@@ -8,6 +8,48 @@
 import SwiftUI
 
 
+struct CandidateView: View {
+    let candidate: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(candidate)
+                .font(.system(size: 20))
+                .foregroundColor(Color(UIColor.label))
+                .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                .background(.gray.opacity(0.2))
+                .cornerRadius(4)
+        }
+    }
+}
+
+
+
+struct CandidatesView: View {
+    
+    let candidates: [String]
+    
+    let selectCandidate: (String) -> Void
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            Group {
+                if (candidates.count > 0) {
+                    HStack {
+                        ForEach(candidates, id: \.self) { c in
+                            CandidateView(candidate: c, action: {selectCandidate(c)})
+                        }
+                    }
+                } else {
+                    CandidateView(candidate: " ", action: {}).opacity(0)
+                }
+            }
+        }
+    }
+}
+
+
 struct NextKeyboardButton: UIViewRepresentable {
     
     let button: UIButton
@@ -29,10 +71,12 @@ struct NextKeyboardButton: UIViewRepresentable {
 struct KeyView: View {
     let label: String
     let handler: () -> Void
+    let font: Font
     
-    init(label: String, handler: @escaping () -> Void) {
+    init(label: String, handler: @escaping () -> Void, font: Font = .system(size: 20)) {
         self.label = label
         self.handler = handler
+        self.font = font
     }
     
     var body: some View {
@@ -43,13 +87,14 @@ struct KeyView: View {
                     Image(systemName: String(name))
                 } else {
                     Text(label)
+                        .font(font)
                 }
             }
             .foregroundColor(Color(UIColor.label))
-            .frame(minWidth: 0, maxWidth: 60, minHeight: 40)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.gray.opacity(0.7))
             .cornerRadius(4)
-            .padding(5)
+            .padding(EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5))
         }
 
     }
@@ -87,8 +132,8 @@ struct KeyboardView: View {
     
     var dict: CandidateDict
     
-    @State var rawInput = ""
-    
+    @State private var rawInput = ""
+
     let setupNextKeyboardButton: (UIButton) -> Void
     
     var candidates: [String] {
@@ -145,45 +190,33 @@ struct KeyboardView: View {
     
     var body: some View {
         VStack {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(candidates, id: \.self) { c in
-                        Button(action: {selectCandidate(c)}) {
-                            Text(c)
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(UIColor.label))
-                                .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
-                                .background(.gray.opacity(0.2))
-                                .cornerRadius(4)
-
+            CandidatesView(candidates: candidates, selectCandidate: selectCandidate)
+                .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
+                GeometryReader {geo in
+                    VStack(spacing: 0) {
+                        RowView(keys: "qwertyuiop", insert: insertAction)
+                        RowView(keys: "asdfghjkl", insert: insertAction)
+                            .frame(width: geo.size.width * 0.9)
+                        HStack(spacing: 0) {
+                            KeyView(label: "123", handler: {}, font: .system(size: 14)) //.frame(maxHeight: .infinity)
+                            RowView(keys: "zxcvbnm", insert: insertAction)
+                                .frame(width: geo.size.width * 0.7)
+                            KeyView(label: "SF:delete.backward", handler: delete)
+                        }
+                        HStack {
+    //                        KeyView(label: "SF:globe", handler: newLine)
+                            NextKeyboardButton(setup: setupNextKeyboardButton)
+                            RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
+                                           ("5", "5")], insert: insertAction)
+                                .frame(width: geo.size.width * 0.5)
+                            KeyView(label: "return", handler: newLine, font: .system(size: 14))
                         }
                     }
+
                 }
-                .frame(height: 45)
-                .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
-            }
-            GeometryReader {geo in
-                VStack(spacing: 0) {
-                    RowView(keys: "qwertyuiop", insert: insertAction)
-                    RowView(keys: "asdfghjkl", insert: insertAction)
-                        .frame(width: geo.size.width * 0.9)
-                    HStack {
-                        KeyView(label: "123", handler: {})
-                        RowView(keys: "zxcvbnm", insert: insertAction)
-                            .frame(width: geo.size.width * 0.7)
-                        KeyView(label: "SF:delete.backward", handler: delete)
-                    }
-                    HStack {
-//                        KeyView(label: "SF:globe", handler: newLine)
-                        NextKeyboardButton(setup: setupNextKeyboardButton)
-                            .frame(width: 75)
-                        RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
-                                       ("5", "5")], insert: insertAction)
-                        KeyView(label: "return", handler: newLine)
-                    }
-                }
-            }
-        }.frame(height:260)
+        }
+        .frame(maxWidth: 600)
+        .frame(height: 280)
     }
     
 }
@@ -233,6 +266,14 @@ struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
         let p = MockTextProxy()
         let d = MockDict()
-        KeyboardView(proxy: p, dict: d, rawInput: "foo1baz2abcas", setupNextKeyboardButton: {_ in})
-    }
+        let orientation = InterfaceOrientation.landscapeLeft
+//        let orientation = InterfaceOrientation.portrait
+        KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
+            .previewInterfaceOrientation(orientation)
+            .previewDevice("iPhone 8")
+        KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
+            .previewInterfaceOrientation(orientation)
+            .previewDevice("iPhone 12")
+        }
+    
 }
