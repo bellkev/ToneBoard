@@ -12,6 +12,8 @@ struct ToneBoardStyle {
     static let keyColor = Color.gray.opacity(0.7)
     static let keyCornerRadius = 4.0
     static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
+    static let keyFontSizeSmall = 16.0
+    static let keyFontSize = 24.0
 }
 
 
@@ -22,7 +24,7 @@ struct CandidateView: View {
     var body: some View {
         Button(action: action) {
             Text(candidate)
-                .font(.system(size: 20))
+                .font(.system(size: 24))
                 .foregroundColor(Color(UIColor.label))
                 .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                 .background(.gray.opacity(0.2))
@@ -80,31 +82,24 @@ struct NextKeyboardButton: UIViewRepresentable {
 struct KeyView: View {
     let label: String
     let action: () -> Void
-    let font: Font
-    
-    init(label: String, action: @escaping () -> Void, font: Font = .system(size: 20)) {
-        self.label = label
-        self.action = action
-        self.font = font
-    }
+    var small: Bool = false
     
     var body: some View {
-        Button(action: action) {
-            Group {
-                if label.starts(with: "SF:") {
-                    let name = label.split(separator: ":")[1]
-                    Image(systemName: String(name))
-                } else {
-                    Text(label)
-                        .font(font)
-                }
+        Group {
+            if label.starts(with: "SF:") {
+                let name = label.split(separator: ":")[1]
+                Image(systemName: String(name))
+            } else {
+                Text(label)
+                    .font(.system(size: small ? ToneBoardStyle.keyFontSizeSmall : ToneBoardStyle.keyFontSize))
             }
-            .foregroundColor(Color(UIColor.label))
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(ToneBoardStyle.keyColor)
-            .cornerRadius(ToneBoardStyle.keyCornerRadius)
-            .padding(ToneBoardStyle.keyPadding)
         }
+        .foregroundColor(Color(UIColor.label))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(ToneBoardStyle.keyColor)
+        .cornerRadius(ToneBoardStyle.keyCornerRadius)
+        .padding(ToneBoardStyle.keyPadding)
+        .onTapGesture(perform: action)
 
     }
 }
@@ -135,6 +130,17 @@ struct RowView: View {
     }
 }
 
+
+enum QwertyState {
+    case normal, justShift, shift, capsLock, number, symbol
+}
+
+
+enum QwertyEvent {
+    case tapShift, tapNum, tapAnyKey, shiftDelay
+}
+
+
 struct QwertyView: View {
     
     let keyAction: (String) -> Void
@@ -142,30 +148,112 @@ struct QwertyView: View {
     let backspaceAction: () -> Void
     let setupNext: ((UIButton) -> Void)?
     
+    @State private var qwertyState: QwertyState = .normal
+    
+    var rows: [String] {
+        switch qwertyState {
+        case .normal:
+            return ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
+        case .shift, .justShift, .capsLock:
+            return ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
+        case .number:
+            return ["1234567890", "-/：；（）$@“”", "。，、？！."]
+        case .symbol:
+            return ["【】｛｝#%^*+=", "_—\\｜～《》€&·", "…，、？！‘"]
+        }
+    }
+    
+    func tapKey(_ s: String) {
+        nextState(.tapAnyKey)
+        keyAction(s)
+    }
+    
+    // FSM to control transitions between shift/numlock/etc states
+    func nextState(_ e: QwertyEvent) {
+        switch (qwertyState, e) {
+        case (.normal, .tapShift): qwertyState = .justShift
+            Task {
+                await Task.sleep(NSEC_PER_SEC / 2)
+                nextState(.shiftDelay)
+            }
+        case (.normal, .tapNum): qwertyState = .number
+        case (.justShift, .tapNum): qwertyState = .number
+        case (.justShift, .tapShift): qwertyState = .capsLock
+        case (.justShift, .shiftDelay): qwertyState = .shift
+        case (.justShift, .tapAnyKey): qwertyState = .normal
+        case (.shift, .tapShift): qwertyState = .normal
+        case (.shift, .tapNum): qwertyState = .number
+        case (.shift, .tapAnyKey): qwertyState = .normal
+        case (.capsLock, .tapShift): qwertyState = .normal
+        case (.capsLock, .tapNum): qwertyState = .number
+        case (.number, .tapNum): qwertyState = .normal
+        case (.number, .tapShift): qwertyState = .symbol
+        case (.symbol, .tapShift): qwertyState = .number
+        case (.symbol, .tapNum): qwertyState = .normal
+        default: debugPrint("Default")
+        }
+    }
+    
+    var shiftContent: String {
+        switch qwertyState {
+        case .normal:
+            return "SF:shift"
+        case .justShift, .shift:
+            return "SF:shift.fill"
+        case .capsLock:
+            return "SF:capslock.fill"
+        case .number:
+            return "#+="
+        case .symbol:
+            return "123"
+        }
+    }
+    
+    var numContent: String {
+        switch qwertyState {
+        case .normal, .justShift, .shift, .capsLock:
+            return "123"
+        case .number, .symbol:
+            return "ABC"
+        }
+    }
+    
     var body: some View {
         GeometryReader {geo in
             VStack(spacing: 0) {
-                RowView(keys: "qwertyuiop", keyAction: keyAction)
-                RowView(keys: "asdfghjkl", keyAction: keyAction)
-                    .frame(width: geo.size.width * 0.9)
+                RowView(keys: rows[0], keyAction: tapKey)
+                RowView(keys: rows[1], keyAction: tapKey)
+                    .frame(width: geo.size.width * (qwertyState == .normal ? 0.9 : 1.0))
                 HStack {
-                    KeyView(label: "SF:shift", action: {})
-                    RowView(keys: "zxcvbnm", keyAction: keyAction)
+                    KeyView(label: shiftContent, action: {nextState(.tapShift)}, small: true)
+                    RowView(keys: rows[2], keyAction: tapKey)
                         .frame(width: geo.size.width * 0.7)
-                    KeyView(label: "SF:delete.backward", action: backspaceAction)
+                    KeyView(label: "SF:delete.backward", action: {
+                        nextState(.tapAnyKey)
+                        backspaceAction()
+                    })
                 }
                 HStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        KeyView(label: "123", action: {}, font: .system(size: 14)) //.frame(maxHeight: .infinity)
+                        KeyView(label: numContent, action: {nextState(.tapNum)}, small: true)
                         if let setup = setupNext {
                             NextKeyboardButton(setup: setup)
                                 .padding(ToneBoardStyle.keyPadding)
                         }
                     }.frame(width: geo.size.width * 0.25)
-                    RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
-                                   ("5", "5")], keyAction: keyAction)
-                        .frame(width: geo.size.width * 0.5)
-                    KeyView(label: "return", action: returnAction, font: .system(size: 14))
+                    Group{
+                        if (qwertyState == .normal) {
+                            RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
+                                           ("5", "5")], keyAction: keyAction)
+                        } else {
+                            KeyView(label: "space", action: {tapKey(" ")}, small: true)
+                        }
+                    }
+                    .frame(width: geo.size.width * 0.5)
+                    KeyView(label: "return", action: {
+                        nextState(.tapAnyKey)
+                        returnAction()
+                    }, small: true)
                         .frame(width: geo.size.width * 0.25)
                 }
             }
