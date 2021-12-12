@@ -584,7 +584,7 @@
 				DEVELOPMENT_TEAM = DDQQ8DU784;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToneBoardExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ToneBoardExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = ToneBoard;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -609,7 +609,7 @@
 				DEVELOPMENT_TEAM = DDQQ8DU784;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToneBoardExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ToneBoardExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = ToneBoard;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
