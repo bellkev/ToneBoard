@@ -8,6 +8,13 @@
 import SwiftUI
 
 
+class DeviceState: ObservableObject {
+    
+    @Published var needsInputModeSwitchKey: Bool = false
+    
+}
+
+
 struct ToneBoardStyle {
     static let keyColor = Color.gray.opacity(0.7)
     static let keyCornerRadius = 4.0
@@ -146,9 +153,11 @@ struct QwertyView: View {
     let keyAction: (String) -> Void
     let returnAction: () -> Void
     let backspaceAction: () -> Void
-    let setupNext: ((UIButton) -> Void)?
+    let setupNext: ((UIButton) -> Void)
     
     @State private var qwertyState: QwertyState = .normal
+    
+    @EnvironmentObject var deviceState: DeviceState
     
     var rows: [String] {
         switch qwertyState {
@@ -236,8 +245,8 @@ struct QwertyView: View {
                 HStack(spacing: 0) {
                     HStack(spacing: 0) {
                         KeyView(label: numContent, action: {nextState(.tapNum)}, small: true)
-                        if let setup = setupNext {
-                            NextKeyboardButton(setup: setup)
+                        if deviceState.needsInputModeSwitchKey {
+                            NextKeyboardButton(setup: setupNext)
                                 .padding(ToneBoardStyle.keyPadding)
                         }
                     }.frame(width: geo.size.width * 0.25)
@@ -269,7 +278,7 @@ struct KeyboardView: View {
     
     @State private var rawInput = ""
 
-    var setupNextKeyboardButton: ((UIButton) -> Void)?
+    var setupNextKeyboardButton: ((UIButton) -> Void)
     
     var candidates: [String] {
         let input = ToneBoardInput(rawInput)
