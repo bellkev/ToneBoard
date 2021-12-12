@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct ToneBoardStyle {
     static let keyColor = Color.gray.opacity(0.7)
     static let keyCornerRadius = 4.0
@@ -29,7 +30,6 @@ struct CandidateView: View {
         }
     }
 }
-
 
 
 struct CandidatesView: View {
@@ -79,17 +79,17 @@ struct NextKeyboardButton: UIViewRepresentable {
 
 struct KeyView: View {
     let label: String
-    let handler: () -> Void
+    let action: () -> Void
     let font: Font
     
-    init(label: String, handler: @escaping () -> Void, font: Font = .system(size: 20)) {
+    init(label: String, action: @escaping () -> Void, font: Font = .system(size: 20)) {
         self.label = label
-        self.handler = handler
+        self.action = action
         self.font = font
     }
     
     var body: some View {
-        Button(action: handler) {
+        Button(action: action) {
             Group {
                 if label.starts(with: "SF:") {
                     let name = label.split(separator: ":")[1]
@@ -114,22 +114,60 @@ struct RowView: View {
     
     let keys: [(String, String)]
     
-    let insert: (String) -> Void
+    let keyAction: (String) -> Void
     
-    init(keys: String, insert: @escaping (String) -> Void) {
-        self.insert = insert
+    init(keys: String, keyAction: @escaping (String) -> Void) {
+        self.keyAction = keyAction
         self.keys = keys.map {(String($0), String($0))}
     }
     
-    init(keys: [(String, String)], insert: @escaping (String) -> Void) {
-        self.insert = insert
+    init(keys: [(String, String)], keyAction: @escaping (String) -> Void) {
+        self.keyAction = keyAction
         self.keys = keys
     }
     
     var body: some View {
         HStack(spacing: 0){
             ForEach(keys, id: \.0) { k in
-                KeyView(label: k.0, handler: {insert(k.1)})
+                KeyView(label: k.0, action: {keyAction(k.1)})
+            }
+        }
+    }
+}
+
+struct QwertyView: View {
+    
+    let keyAction: (String) -> Void
+    let returnAction: () -> Void
+    let backspaceAction: () -> Void
+    let setupNext: ((UIButton) -> Void)?
+    
+    var body: some View {
+        GeometryReader {geo in
+            VStack(spacing: 0) {
+                RowView(keys: "qwertyuiop", keyAction: keyAction)
+                RowView(keys: "asdfghjkl", keyAction: keyAction)
+                    .frame(width: geo.size.width * 0.9)
+                HStack {
+                    KeyView(label: "SF:shift", action: {})
+                    RowView(keys: "zxcvbnm", keyAction: keyAction)
+                        .frame(width: geo.size.width * 0.7)
+                    KeyView(label: "SF:delete.backward", action: backspaceAction)
+                }
+                HStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        KeyView(label: "123", action: {}, font: .system(size: 14)) //.frame(maxHeight: .infinity)
+                        if let setup = setupNext {
+                            NextKeyboardButton(setup: setup)
+                                .padding(ToneBoardStyle.keyPadding)
+                        }
+                    }.frame(width: geo.size.width * 0.25)
+                    RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
+                                   ("5", "5")], keyAction: keyAction)
+                        .frame(width: geo.size.width * 0.5)
+                    KeyView(label: "return", action: returnAction, font: .system(size: 14))
+                        .frame(width: geo.size.width * 0.25)
+                }
             }
         }
     }
@@ -201,34 +239,8 @@ struct KeyboardView: View {
         VStack {
             CandidatesView(candidates: candidates, selectCandidate: selectCandidate)
                 .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
-                GeometryReader {geo in
-                    VStack(spacing: 0) {
-                        RowView(keys: "qwertyuiop", insert: insertAction)
-                        RowView(keys: "asdfghjkl", insert: insertAction)
-                            .frame(width: geo.size.width * 0.9)
-                        HStack {
-                            KeyView(label: "SF:shift", handler: {})
-                            RowView(keys: "zxcvbnm", insert: insertAction)
-                                .frame(width: geo.size.width * 0.7)
-                            KeyView(label: "SF:delete.backward", handler: delete)
-                        }
-                        HStack(spacing: 0) {
-                            HStack(spacing: 0) {
-                                KeyView(label: "123", handler: {}, font: .system(size: 14)) //.frame(maxHeight: .infinity)
-                                if let nextKeyboard = setupNextKeyboardButton {
-                                    NextKeyboardButton(setup: nextKeyboard)
-                                        .padding(ToneBoardStyle.keyPadding)
-                                }
-                            }.frame(width: geo.size.width * 0.25)
-                            RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
-                                           ("5", "5")], insert: insertAction)
-                                .frame(width: geo.size.width * 0.5)
-                            KeyView(label: "return", handler: newLine, font: .system(size: 14))
-                                .frame(width: geo.size.width * 0.25)
-                        }
-                    }
+            QwertyView(keyAction: insertAction, returnAction: newLine, backspaceAction: delete, setupNext: setupNextKeyboardButton)
 
-                }
         }
         .frame(maxWidth: 600)
         .frame(height: 280)
