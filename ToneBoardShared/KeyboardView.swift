@@ -16,7 +16,7 @@ class DeviceState: ObservableObject {
 
 
 struct ToneBoardStyle {
-    static let keyColor = Color.gray.opacity(0.7)
+    static let keyColor = Color.gray
     static let keyCornerRadius = 4.0
     static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
     static let keyFontSizeSmall = 16.0
@@ -91,6 +91,8 @@ struct KeyView: View {
     let action: () -> Void
     var small: Bool = false
     
+    @GestureState var isTouched = false
+    
     var body: some View {
         Group {
             if label.starts(with: "SF:") {
@@ -106,8 +108,22 @@ struct KeyView: View {
         .background(ToneBoardStyle.keyColor)
         .cornerRadius(ToneBoardStyle.keyCornerRadius)
         .padding(ToneBoardStyle.keyPadding)
-        .onTapGesture(perform: action)
-
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .updating($isTouched) { _, gestureState, _ in
+                    gestureState = true
+                    debugPrint("updating")
+                }
+                .onEnded { _ in
+                    action()
+                    debugPrint("ended")
+                })
+        // It's surprisingly hard to compose these modifiers into one "popUp" effect,
+        // as any branching results in a ConditionalContent view that does not have a single
+        // consistent identity for the tap/release gesture
+        .scaleEffect(isTouched ? 1.3 : 1)
+        .offset(x:0, y: isTouched ? -40 : 0)
+        .shadow(color: .black.opacity(isTouched ? 1 : 0), radius: 2)
     }
 }
 
@@ -199,7 +215,7 @@ struct QwertyView: View {
         case (.number, .tapShift): qwertyState = .symbol
         case (.symbol, .tapShift): qwertyState = .number
         case (.symbol, .tapNum): qwertyState = .normal
-        default: debugPrint("Default")
+        default: break
         }
     }
     
@@ -395,9 +411,7 @@ struct KeyboardView_Previews: PreviewProvider {
         KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
             .previewInterfaceOrientation(orientation)
             .previewDevice("iPhone 8")
-//        KeyboardView(proxy: p, dict: d)
-//            .previewInterfaceOrientation(orientation)
-//            .previewDevice("iPhone 12")
+            .environmentObject(DeviceState())
         }
     
 }
