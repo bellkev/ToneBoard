@@ -17,6 +17,7 @@ class DeviceState: ObservableObject {
 
 struct ToneBoardStyle {
     static let keyColor = Color.gray
+    static let keyColorTapped = Color.gray.opacity(0.7)
     static let keyCornerRadius = 4.0
     static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
     static let keyFontSizeSmall = 16.0
@@ -86,12 +87,15 @@ struct NextKeyboardButton: UIViewRepresentable {
 }
 
 
-struct KeyView: View {
+struct KeyContent: View {
     let label: String
     let action: () -> Void
-    var small: Bool = false
     
-    @GestureState var isTouched = false
+    @Binding var isTapped: Bool
+    
+    var small: Bool = false
+    var color: Color = ToneBoardStyle.keyColor
+
     
     var body: some View {
         Group {
@@ -105,25 +109,50 @@ struct KeyView: View {
         }
         .foregroundColor(Color(UIColor.label))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ToneBoardStyle.keyColor)
+        .background(color)
         .cornerRadius(ToneBoardStyle.keyCornerRadius)
         .padding(ToneBoardStyle.keyPadding)
         .gesture(
             DragGesture(minimumDistance: 0)
-                .updating($isTouched) { _, gestureState, _ in
-                    gestureState = true
-                    debugPrint("updating")
+                .onChanged { _ in
+                    isTapped = true
                 }
                 .onEnded { _ in
+                    isTapped = false
                     action()
-                    debugPrint("ended")
                 })
-        // It's surprisingly hard to compose these modifiers into one "popUp" effect,
+    }
+
+}
+
+
+struct StandardKey: View {
+    let label: String
+    let action: () -> Void
+    
+    @State var isTapped = false
+    
+    var body: some View {
+        KeyContent(label: label, action: action, isTapped: $isTapped)
+        // It's surprisingly hard to compose these modifiers conditionally with if/else,
         // as any branching results in a ConditionalContent view that does not have a single
         // consistent identity for the tap/release gesture
-        .scaleEffect(isTouched ? 1.3 : 1)
-        .offset(x:0, y: isTouched ? -40 : 0)
-        .shadow(color: .black.opacity(isTouched ? 1 : 0), radius: 2)
+        .scaleEffect(isTapped ? 1.3 : 1)
+        .offset(x:0, y: isTapped ? -40 : 0)
+        .shadow(color: .black.opacity(isTapped ? 1 : 0), radius: 2)
+    }
+}
+
+
+struct SpecialKey: View {
+    let label: String
+    let action: () -> Void
+    
+    @State var isTapped = false
+    
+    var body: some View {
+        KeyContent(label: label, action: action, isTapped: $isTapped, small: true,
+                   color: isTapped ? ToneBoardStyle.keyColorTapped : ToneBoardStyle.keyColor)
     }
 }
 
@@ -147,7 +176,7 @@ struct RowView: View {
     var body: some View {
         HStack(spacing: 0){
             ForEach(keys, id: \.0) { k in
-                KeyView(label: k.0, action: {keyAction(k.1)})
+                StandardKey(label: k.0, action: {keyAction(k.1)})
             }
         }
     }
@@ -250,17 +279,17 @@ struct QwertyView: View {
                 RowView(keys: rows[1], keyAction: tapKey)
                     .frame(width: geo.size.width * (qwertyState == .normal ? 0.9 : 1.0))
                 HStack {
-                    KeyView(label: shiftContent, action: {nextState(.tapShift)}, small: true)
+                    SpecialKey(label: shiftContent, action: {nextState(.tapShift)})
                     RowView(keys: rows[2], keyAction: tapKey)
                         .frame(width: geo.size.width * 0.7)
-                    KeyView(label: "SF:delete.backward", action: {
+                    SpecialKey(label: "SF:delete.backward", action: {
                         nextState(.tapAnyKey)
                         backspaceAction()
                     })
                 }
                 HStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        KeyView(label: numContent, action: {nextState(.tapNum)}, small: true)
+                        SpecialKey(label: numContent, action: {nextState(.tapNum)})
                         if deviceState.needsInputModeSwitchKey {
                             NextKeyboardButton(setup: setupNext)
                                 .padding(ToneBoardStyle.keyPadding)
@@ -271,14 +300,14 @@ struct QwertyView: View {
                             RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
                                            ("5", "5")], keyAction: keyAction)
                         } else {
-                            KeyView(label: "space", action: {tapKey(" ")}, small: true)
+                            SpecialKey(label: "space", action: {tapKey(" ")})
                         }
                     }
                     .frame(width: geo.size.width * 0.5)
-                    KeyView(label: "return", action: {
+                    SpecialKey(label: "return", action: {
                         nextState(.tapAnyKey)
                         returnAction()
-                    }, small: true)
+                    })
                         .frame(width: geo.size.width * 0.25)
                 }
             }
@@ -408,10 +437,11 @@ struct KeyboardView_Previews: PreviewProvider {
         let d = MockDict()
 //        let orientation = InterfaceOrientation.landscapeLeft
         let orientation = InterfaceOrientation.portrait
-        KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
-            .previewInterfaceOrientation(orientation)
-            .previewDevice("iPhone 8")
-            .environmentObject(DeviceState())
+        Color.black.opacity(0.9).overlay(KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
+                                .previewInterfaceOrientation(orientation)
+                                .previewDevice("iPhone 8")
+                                .environmentObject(DeviceState()))
+        
         }
     
 }
