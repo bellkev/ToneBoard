@@ -385,7 +385,6 @@ struct KeyboardView: View {
 
         }
         .frame(maxWidth: 600)
-        .frame(height: 280)
     }
     
 }
