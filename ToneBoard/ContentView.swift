@@ -34,13 +34,41 @@ class TutorialTextField: UITextField {
 
 struct TutorialTextFieldView: UIViewRepresentable {
         
-    func makeUIView(context: Context) -> some UIView {
+    @Binding var text: String
+    
+    class Coordinator: NSObject {
+        var parent: TutorialTextFieldView
+
+        init(_ parent: TutorialTextFieldView) {
+            self.parent = parent
+        }
+        
+        @objc func textFieldDidChange(_ field: TutorialTextField) {
+            parent.text = field.text ?? ""
+        }
+    }
+        
+    func makeUIView(context: Context) -> TutorialTextField {
         let textField = TutorialTextField()
-        textField.placeholder = "Custom"
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: textField.frame.height))
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
+        textField.placeholder = "Type here..."
+        textField.font = .systemFont(ofSize: 25)
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.label.cgColor
+        textField.layer.cornerRadius = 4
+        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }
     
-    func updateUIView(_ uiView: UIViewType, context: Context) {}
+    func updateUIView(_ textField: TutorialTextField, context: Context) {
+        textField.text = text
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
 }
 
 
@@ -68,79 +96,20 @@ struct HomeButton: View {
 }
 
 
-class TutorialState: ObservableObject {
-    let steps = [
-        Step(title: "1. The Basics",
-             substeps: [
-                Substep("You can enter Chinese characters in ToneBoard by typing a syllable in Pinyin followed by a tone number. Give it a try by typing \"bu4\" here:", target: "bu4"),
-                Substep("Great, you did it!")
-             ]),
-        Step(title: "2. Another step",
-             substeps: [
-                Substep("Foo")
-             ])
-    ]
-    
-    @Published var currentStep: Int = 0
-    @Published var currentSubstep: Int = 0
-    @Published var stepDone: Bool = false
-    @Published var text: String = ""
-    
-    
-    var numSteps: Int {
-        self.steps.count
-    }
-    
-    private func resetStep() {
-        self.currentSubstep = 0
-        self.stepDone = false
-        self.text = ""
-    }
-    
-    func next() {
-        self.currentStep += 1
-        resetStep()
-    }
-    
-    func back() {
-        self.currentStep -= 1
-        resetStep()
-    }
-    
-    func finishSubstep() {
-        self.currentSubstep += 1
-        if (currentSubstep == steps[currentStep].substeps.count - 1) {
-            self.stepDone = true
-        }
-    }
-}
-
-
 struct ProgressBar: View {
     
-    @ObservedObject var state: TutorialState
+    let numSteps: Int
+    let currentStep: Int
     
-    @State var bouncing: Bool = false
     
     let progressColor = Color(UIColor.label)
-    
-    func bounce() async {
-        try? await Task.sleep(nanoseconds: 500000000)
-        bouncing = true
-        try? await Task.sleep(nanoseconds: 100000000)
-        bouncing = false
-    }
+
     
     var body: some View {
         HStack {
-            Image(systemName: "chevron.left.2")
-                .padding()
-                .onTapGesture {
-                    state.back()
-                }.opacity(state.currentStep > 0 ? 1 : 0)
-            ForEach(0..<state.numSteps, id: \.self) { step in
+            ForEach(0..<numSteps, id: \.self) { step in
                 Group {
-                    if (state.currentStep == step) {
+                    if (currentStep == step) {
                         Circle().fill(progressColor)
                     } else {
                         Circle().strokeBorder(progressColor, lineWidth: 2)
@@ -148,22 +117,8 @@ struct ProgressBar: View {
 
                 }.frame(width: 10, height: 10)
             }
-            Image(systemName: "chevron.right.2")
-                .padding()
-                .onTapGesture {
-                    state.next()
-                }
-                .offset(x: bouncing ? 10 : 0, y: 0)
-                .animation(.easeInOut(duration: 0.1), value: bouncing)
-                .opacity(state.currentStep < (state.numSteps - 1) ? 1 : 0)
         }
-        .frame(height: 30)
-        .onChange(of: state.stepDone) { _ in
-            Task {
-                await bounce()
-                await bounce()
-            }
-        }
+        .frame(height: 20)
     }
 }
 
@@ -185,70 +140,173 @@ struct Step {
 }
 
 
+struct Card: View {
+    let step: Step
+    
+    @Binding var isDone: Bool
+    @Binding var text: String
+    @Binding var currentStep: Int
+    
+    @State var currentSubstep = 0
+    
+    func finishSubstep() {
+        currentSubstep += 1
+        if (currentSubstep == step.substeps.count - 1) {
+            isDone = true
+        }
+    }
+    
+    var body: some View {
+        VStack {
+            Text(step.title).bold()
+            ScrollView {
+                Text(step.substeps[currentSubstep].instructions)
+                    .multilineTextAlignment(.center)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.5)))
+                    .id(step.substeps[currentSubstep].instructions)
+            }
+        }
+        .padding()
+        // Will be placed in a fixed-size container
+        .frame(maxWidth: .infinity, maxHeight: 350)
+        .background(.gray.opacity(0.5))
+        .cornerRadius(10)
+        .onChange(of: text) { newText in
+            if newText == step.substeps[currentSubstep].target {
+                finishSubstep()
+            }
+        }
+        .onChange(of: currentStep) { _ in
+            currentSubstep = 0
+        }
+    }
+}
+
+
+struct Carousel: View {
+    
+    let spacing = CGFloat(20)
+    let threshold = CGFloat(100)
+    
+    let steps: [Step]
+
+    @Binding var currentStep: Int
+    @Binding var text: String
+    
+    @GestureState var offset = CGFloat(0)
+    @State var isDone = false
+    @State var bouncing = false
+    @State var bounceTask: Task<Void, Error>? = nil
+    
+    var cardWidth: CGFloat {
+        UIScreen.main.bounds.width - spacing * 4
+    }
+    
+    var totalOffset: CGFloat {
+        offset + spacing * 2 - CGFloat(currentStep) * (cardWidth + spacing) + CGFloat(bouncing ? -10 : 0)
+    }
+    
+    func firstStep() -> Bool {
+        currentStep == 0
+    }
+    
+    func lastStep() -> Bool {
+        currentStep == steps.count - 1
+    }
+    
+    func resetStep() {
+        isDone = false
+        text = ""
+        bounceTask?.cancel()
+    }
+    
+    func bounce() async {
+        bouncing = true
+        try? await Task.sleep(nanoseconds: 250000000)
+        bouncing = false
+        try? await Task.sleep(nanoseconds: 250000000)
+    }
+    
+    func startBouncing() {
+        bounceTask = Task {
+            while true {
+                try? await Task.sleep(nanoseconds: 2000000000)
+                await bounce()
+                await bounce()
+                if Task.isCancelled {
+                    return
+                }
+            }
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: spacing) {
+            ForEach(0..<steps.count, id: \.self) { step in
+                Card(step: steps[step], isDone: $isDone, text: $text, currentStep: $currentStep)
+                    .frame(width: cardWidth)
+                    .offset(x: totalOffset, y: 0)
+                    .animation(.easeOut(duration: 0.2), value: totalOffset)
+                    .gesture(
+                        DragGesture()
+                            .updating($offset) { value, gestureState, transaction in
+                                transaction.disablesAnimations = true
+                                gestureState = value.translation.width
+                            }
+                            .onEnded { value in
+                                if value.translation.width < -threshold && !lastStep() {
+                                    currentStep += 1
+                                    resetStep()
+                                } else if value.translation.width > threshold && !firstStep() {
+                                    currentStep -= 1
+                                    resetStep()
+                                }
+                            }
+                    )
+            }
+        }
+        .frame(width: UIScreen.main.bounds.width, alignment: .leading)
+        .onChange(of: isDone) { _ in
+            if isDone {
+                startBouncing()
+            }
+        }
+    }
+}
+
 
 struct Tutorial: View {
     
-    @StateObject var state: TutorialState = TutorialState()
+    @State var currentStep: Int = 0
     
-    var steps: [Step] {
-        state.steps
-    }
+    @State var text: String = ""
     
-    var currentStep: Int {
-        state.currentStep
-    }
-    
-    var currentSubstep: Int {
-        state.currentSubstep
-    }
-    
-    var currentTitle: String {
-        steps[currentStep].title
-    }
-    
-    var currentInstructions: String {
-        return steps[currentStep].substeps[currentSubstep].instructions
-    }
-    
-    var currentTarget: String? {
-        steps[currentStep].substeps[currentSubstep].target
-    }
-    
-    @Environment(\.presentationMode) var presentation
-    
+    let steps = [
+        Step(title: "1. The Basics",
+             substeps: [
+                Substep("Input Chinese characters by typing a syllable in Pinyin followed by a tone number. Try typing \"bu4\".", target: "bu4"),
+                Substep("Great! Now you can select from characters with the reading \"bu4\", ordered by frequency. Try selecting \"不\".", target: "不"),
+                Substep("Alright, you input your first character! Now swipe to the next step.")
+             ]),
+        Step(title: "2. Words",
+             substeps: [
+                Substep("Now try inputting a multi-character word. Try typing \"fei1chang2\".", target: "fei1 chang2"),
+                Substep("Good! Notice that the syllables are displayed with a space between them for easier reading. Now select \"非常\".", target: "非常"),
+                Substep("Great! You input your first multi-character word.")
+             ])
+    ]
+        
     var body: some View {
-        VStack(spacing: 30) {
-            Text(currentTitle).bold()
-            ProgressBar(state: state)
-            VStack {
-                Text(currentInstructions)
-                    .transition(.opacity.animation(.easeInOut(duration: 0.5)))
-                    .id(currentInstructions)
-                Spacer()
-            }
+        VStack(spacing: 20) {
+            ProgressBar(numSteps: steps.count, currentStep: currentStep)
+            Carousel(steps: steps, currentStep: $currentStep, text: $text)
             Spacer()
-            TextField("Type here...", text: $state.text)
-                .textFieldStyle(.roundedBorder)
-                .autocapitalization(.none)
-                .padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
-        }.frame(maxHeight: 600)
+            TutorialTextFieldView(text: $text).frame(height: 30)
+            Spacer()
+        }
         .padding(EdgeInsets(top: 0, leading: 50, bottom: 0, trailing: 50))
         .navigationTitle("Try ToneBoard")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(content: {
-           ToolbarItem (placement: .navigation)  {
-              Text("< Home")
-              .onTapGesture {
-                  self.presentation.wrappedValue.dismiss()
-              }
-           }
-        })
-        .navigationBarBackButtonHidden(true)
-        .onChange(of: state.text) { newText in
-            if (newText == currentTarget) {
-                state.finishSubstep()
-            }
-        }
     }
 }
 
@@ -290,6 +348,8 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        Tutorial()
+        .environment(\.sizeCategory, .extraExtraLarge)
+        .previewDevice("iPhone 8")
     }
 }
