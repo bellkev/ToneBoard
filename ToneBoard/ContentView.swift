@@ -23,9 +23,8 @@ class TutorialKeyboardViewController: SharedKeyboardViewController {
 
 
 class TutorialTextField: UITextField {
-    
-    override var inputViewController: UIInputViewController? {
         
+    override var inputViewController: UIInputViewController? {
         TutorialKeyboardViewController()
     }
     
@@ -57,7 +56,7 @@ struct TutorialTextFieldView: UIViewRepresentable {
         textField.font = .systemFont(ofSize: 25)
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.label.cgColor
-        textField.layer.cornerRadius = 4
+        textField.layer.cornerRadius = 10
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }
@@ -73,7 +72,7 @@ struct TutorialTextFieldView: UIViewRepresentable {
 
 
 
-struct HomeButton: View {
+struct BigButton: View {
     let title: String
     let primary: Bool
     
@@ -162,7 +161,7 @@ struct Card: View {
             ScrollView {
                 Text(step.substeps[currentSubstep].instructions)
                     .multilineTextAlignment(.center)
-                    .transition(.opacity.animation(.easeInOut(duration: 0.5)))
+                    .transition(.opacity.animation(.easeInOut(duration: 1)))
                     .id(step.substeps[currentSubstep].instructions)
             }
         }
@@ -206,11 +205,11 @@ struct Carousel: View {
         offset + spacing * 2 - CGFloat(currentStep) * (cardWidth + spacing) + CGFloat(bouncing ? -10 : 0)
     }
     
-    func firstStep() -> Bool {
+    var firstStep: Bool {
         currentStep == 0
     }
     
-    func lastStep() -> Bool {
+    var lastStep: Bool {
         currentStep == steps.count - 1
     }
     
@@ -254,10 +253,10 @@ struct Carousel: View {
                                 gestureState = value.translation.width
                             }
                             .onEnded { value in
-                                if value.translation.width < -threshold && !lastStep() {
+                                if value.translation.width < -threshold && !lastStep {
                                     currentStep += 1
                                     resetStep()
-                                } else if value.translation.width > threshold && !firstStep() {
+                                } else if value.translation.width > threshold && !firstStep {
                                     currentStep -= 1
                                     resetStep()
                                 }
@@ -282,26 +281,40 @@ struct Tutorial: View {
     @State var text: String = ""
     
     let steps = [
-        Step(title: "1. The Basics",
+        Step(title: "The Basics",
              substeps: [
                 Substep("Input Chinese characters by typing a syllable in Pinyin followed by a tone number. Try typing \"bu4\".", target: "bu4"),
                 Substep("Great! Now you can select from characters with the reading \"bu4\", ordered by frequency. Try selecting \"不\".", target: "不"),
                 Substep("Alright, you input your first character! Now swipe to the next step.")
              ]),
-        Step(title: "2. Words",
+        Step(title: "Words",
              substeps: [
                 Substep("Now try inputting a multi-character word. Try typing \"fei1chang2\".", target: "fei1 chang2"),
                 Substep("Good! Notice that the syllables are displayed with a space between them for easier reading. Now select \"非常\".", target: "非常"),
                 Substep("Great! You input your first multi-character word.")
-             ])
+             ]),
+        Step(title: "The End", substeps: [Substep("That's it for the tutorial! Now that you know how to use ToneBoard, you can install it to use in other apps.")])
     ]
+    
+    var lastStep: Bool {
+        currentStep == steps.count - 1
+    }
         
     var body: some View {
         VStack(spacing: 20) {
             ProgressBar(numSteps: steps.count, currentStep: currentStep)
             Carousel(steps: steps, currentStep: $currentStep, text: $text)
             Spacer()
-            TutorialTextFieldView(text: $text).frame(height: 30)
+            Group {
+                if lastStep {
+                    NavigationLink(destination: Install()) {
+                        BigButton("Install", primary: true)
+                    }
+                } else {
+                    TutorialTextFieldView(text: $text).frame(height: 45)
+
+                }
+            }
             Spacer()
         }
         .padding(EdgeInsets(top: 0, leading: 50, bottom: 0, trailing: 50))
@@ -311,6 +324,12 @@ struct Tutorial: View {
 }
 
 
+struct Install: View {
+    var body: some View {
+        Text("Install it!")
+    }
+}
+
 struct Home: View {
     var body: some View {
         VStack(spacing: 20) {
@@ -318,11 +337,13 @@ struct Home: View {
             Text("ToneBoard").font(.system(size: 50))
             Spacer()
             NavigationLink(destination: Tutorial()) {
-                HomeButton("Try Now", primary: true)
+                BigButton("Try Now", primary: true)
             }
-            HomeButton("Install")
-            HomeButton("Help")
-            HomeButton("About")
+            NavigationLink(destination: Install()) {
+                BigButton("Install")
+            }
+            BigButton("Help")
+            BigButton("About")
             Spacer()
             (Text("You can try ToneBoard with a quick tutorial in this app by selecting ") + Text("Try Now").bold() + Text(", or select ") + Text("Install").bold() + Text(" to see how to use it systemwide."))
                 .multilineTextAlignment(.center)
@@ -332,6 +353,7 @@ struct Home: View {
             
 
         }
+        .navigationBarTitle("Home")
         .navigationBarHidden(true)
     }
 }
@@ -348,7 +370,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        Tutorial()
+        ContentView()
         .environment(\.sizeCategory, .extraExtraLarge)
         .previewDevice("iPhone 8")
     }
