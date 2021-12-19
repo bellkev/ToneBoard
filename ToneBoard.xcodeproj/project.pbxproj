@@ -32,6 +32,7 @@
 		0A6DDF97276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
 		0A6DDF98276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
 		0A6DDF99276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
+		0AA6A739276EF5F80043916D /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
 		0AE3AB6B276ED23600A07914 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3AB6A276ED23600A07914 /* AboutView.swift */; };
 /* End PBXBuildFile section */
 
@@ -321,6 +322,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AA6A739276EF5F80043916D /* KeyboardView.swift in Sources */,
 				0A63DB25276AB130002242BB /* SharedKeyboardViewController.swift in Sources */,
 				0A46C1A3276061650079EF13 /* ToneBoardInput.swift in Sources */,
 				0A46C1A72760628A0079EF13 /* CandidateDict.swift in Sources */,

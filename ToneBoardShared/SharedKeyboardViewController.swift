@@ -9,6 +9,13 @@ import UIKit
 import SwiftUI
 
 
+class DeviceState: ObservableObject {
+    
+    @Published var needsInputModeSwitchKey: Bool = false
+    
+}
+
+
 class SharedKeyboardViewController: UIInputViewController {
     
     var deviceState = DeviceState()

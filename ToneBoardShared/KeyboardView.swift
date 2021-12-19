@@ -8,13 +8,6 @@
 import SwiftUI
 
 
-class DeviceState: ObservableObject {
-    
-    @Published var needsInputModeSwitchKey: Bool = false
-    
-}
-
-
 struct ToneBoardStyle {
     static let keyColor = Color.gray
     static let keyColorTapped = Color.gray.opacity(0.7)
