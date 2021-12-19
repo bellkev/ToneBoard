@@ -40,7 +40,10 @@ def candidate_dict(cc_data, ngram_data):
         is_cjk_chars = all(ord(char) >= 0x3400 for char in simplified)
         is_short = len(simplified) <= 4
         if is_well_formed and is_cjk_chars and is_short:
-            reading_entries[norm_reading].add(simplified)
+            reading_segments = norm_reading.split(' ')
+            # Add each subword as well as the word itself
+            for i in range(1, len(simplified) + 1):
+                reading_entries[' '.join(reading_segments[0:i])].add(simplified[0:i])
     return {k: sorted(v, key=lambda x: ngram_data.get(x, 0), reverse=True)
             for k,v in reading_entries.items()}
 
