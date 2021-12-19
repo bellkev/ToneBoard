@@ -11,7 +11,8 @@ import SwiftUI
 
 class DeviceState: ObservableObject {
     
-    @Published var needsInputModeSwitchKey: Bool = false
+    @Published var needsInputModeSwitchKey = false
+    @Published var textLastChanged = Date()
     
 }
 
@@ -68,7 +69,7 @@ class SharedKeyboardViewController: UIInputViewController {
     
     override func textDidChange(_ textInput: UITextInput?) {
         // The app has just changed the document's contents, the document context has been updated.
-
+        deviceState.textLastChanged = Date()
     }
 
 }

@@ -315,6 +315,7 @@ struct KeyboardView: View {
     let dict: CandidateDict
     
     @State private var rawInput = ""
+    @EnvironmentObject var deviceState: DeviceState
 
     var setupNextKeyboardButton: ((UIButton) -> Void)
     
@@ -378,6 +379,10 @@ struct KeyboardView: View {
 
         }
         .frame(maxWidth: 600)
+        .onChange(of: deviceState.textLastChanged) { _ in
+            rawInput = ""
+            updateMarked()
+        }
     }
     
 }
