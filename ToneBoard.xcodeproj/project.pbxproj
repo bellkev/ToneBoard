@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A1560C8276EA68400E192FF /* InstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560C7276EA68400E192FF /* InstallView.swift */; };
+		0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CB276EA71800E192FF /* TutorialView.swift */; };
+		0A1560CE276EA79900E192FF /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CD276EA79900E192FF /* Components.swift */; };
+		0A1560D0276EACA400E192FF /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CF276EACA400E192FF /* HelpView.swift */; };
 		0A46C18627601E0F0079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A46C18727601E0F0079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A46C18F27601EAF0079EF13 /* ToneBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18E27601EAF0079EF13 /* ToneBoardTests.swift */; };
@@ -28,6 +32,7 @@
 		0A6DDF97276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
 		0A6DDF98276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
 		0A6DDF99276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
+		0AE3AB6B276ED23600A07914 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3AB6A276ED23600A07914 /* AboutView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +67,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A1560C7276EA68400E192FF /* InstallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallView.swift; sourceTree = "<group>"; };
+		0A1560CB276EA71800E192FF /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
+		0A1560CD276EA79900E192FF /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		0A1560CF276EACA400E192FF /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneBoardInput.swift; sourceTree = "<group>"; };
 		0A46C18C27601EAF0079EF13 /* ToneBoardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToneBoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A46C18E27601EAF0079EF13 /* ToneBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneBoardTests.swift; sourceTree = "<group>"; };
@@ -77,6 +86,7 @@
 		0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
 		0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedKeyboardViewController.swift; sourceTree = "<group>"; };
 		0A6DDF96276150940088D783 /* dict.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dict.json; sourceTree = "<group>"; };
+		0AE3AB6A276ED23600A07914 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,10 +147,15 @@
 		0A60D567275C865500FFAD22 /* ToneBoard */ = {
 			isa = PBXGroup;
 			children = (
-				0A60D568275C865500FFAD22 /* ToneBoardApp.swift */,
-				0A60D56A275C865500FFAD22 /* ContentView.swift */,
 				0A60D56C275C865700FFAD22 /* Assets.xcassets */,
+				0A1560CD276EA79900E192FF /* Components.swift */,
+				0A60D56A275C865500FFAD22 /* ContentView.swift */,
+				0A1560C7276EA68400E192FF /* InstallView.swift */,
 				0A60D56E275C865700FFAD22 /* Preview Content */,
+				0A60D568275C865500FFAD22 /* ToneBoardApp.swift */,
+				0A1560CB276EA71800E192FF /* TutorialView.swift */,
+				0A1560CF276EACA400E192FF /* HelpView.swift */,
+				0AE3AB6A276ED23600A07914 /* AboutView.swift */,
 			);
 			path = ToneBoard;
 			sourceTree = "<group>";
@@ -318,10 +333,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A63DB23276AB130002242BB /* SharedKeyboardViewController.swift in Sources */,
+				0A1560C8276EA68400E192FF /* InstallView.swift in Sources */,
+				0AE3AB6B276ED23600A07914 /* AboutView.swift in Sources */,
 				0A60D60C275D80CA00FFAD22 /* KeyboardView.swift in Sources */,
+				0A1560D0276EACA400E192FF /* HelpView.swift in Sources */,
 				0A46C1A52760628A0079EF13 /* CandidateDict.swift in Sources */,
+				0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */,
 				0A46C18627601E0F0079EF13 /* ToneBoardInput.swift in Sources */,
 				0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */,
+				0A1560CE276EA79900E192FF /* Components.swift in Sources */,
 				0A60D569275C865500FFAD22 /* ToneBoardApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
