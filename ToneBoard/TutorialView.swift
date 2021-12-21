@@ -136,10 +136,14 @@ struct Card: View {
         VStack {
             Text(step.title).bold()
             ScrollView {
-                Text(step.substeps[currentSubstep].instructions)
-                    .multilineTextAlignment(.center)
-                    .transition(.opacity.animation(.easeInOut(duration: 1)))
-                    .id(step.substeps[currentSubstep].instructions)
+                ZStack(alignment: .top) {
+                    ForEach(0..<step.substeps.count, id: \.self) { substep in
+                        Text(step.substeps[substep].instructions)
+                            .multilineTextAlignment(.center)
+                            .opacity(substep == currentSubstep ? 1 : 0)
+                            .animation(.easeInOut(duration: 1), value: currentSubstep)
+                    }
+                }
             }
         }
         .padding()
