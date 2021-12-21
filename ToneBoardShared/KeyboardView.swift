@@ -85,11 +85,18 @@ struct NextKeyboardButton: UIViewRepresentable {
 struct KeyContent: View {
     let label: String
     let action: () -> Void
+    var small = false
+    var popUp = false
+        
+    @GestureState var isTapped = false
     
-    @Binding var isTapped: Bool
+    var color: Color {
+        (isTapped && !popUp) ? ToneBoardStyle.keyColorTapped : ToneBoardStyle.keyColor
+    }
     
-    var small: Bool = false
-    var color: Color = ToneBoardStyle.keyColor
+    var isPoppedUp: Bool {
+        popUp && isTapped
+    }
 
     
     var body: some View {
@@ -109,13 +116,18 @@ struct KeyContent: View {
         .padding(ToneBoardStyle.keyPadding)
         .gesture(
             DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    isTapped = true
+                .updating($isTapped) { _, state, _ in
+                    state = true
                 }
                 .onEnded { _ in
-                    isTapped = false
                     action()
                 })
+        // It's surprisingly hard to compose these modifiers conditionally with if/else,
+        // as any branching results in a ConditionalContent view that does not have a single
+        // consistent identity for the tap/release gesture
+        .scaleEffect(isPoppedUp ? 1.3 : 1)
+        .offset(x:0, y: isPoppedUp ? -40 : 0)
+        .shadow(color: .black.opacity(isPoppedUp ? 1 : 0), radius: 2)
     }
 
 }
@@ -124,17 +136,10 @@ struct KeyContent: View {
 struct StandardKey: View {
     let label: String
     let action: () -> Void
-    
-    @State var isTapped = false
-    
+        
     var body: some View {
-        KeyContent(label: label, action: action, isTapped: $isTapped)
-        // It's surprisingly hard to compose these modifiers conditionally with if/else,
-        // as any branching results in a ConditionalContent view that does not have a single
-        // consistent identity for the tap/release gesture
-        .scaleEffect(isTapped ? 1.3 : 1)
-        .offset(x:0, y: isTapped ? -40 : 0)
-        .shadow(color: .black.opacity(isTapped ? 1 : 0), radius: 2)
+        KeyContent(label: label, action: action, popUp: true)
+
     }
 }
 
@@ -142,12 +147,9 @@ struct StandardKey: View {
 struct SpecialKey: View {
     let label: String
     let action: () -> Void
-    
-    @State var isTapped = false
-    
+        
     var body: some View {
-        KeyContent(label: label, action: action, isTapped: $isTapped, small: true,
-                   color: isTapped ? ToneBoardStyle.keyColorTapped : ToneBoardStyle.keyColor)
+        KeyContent(label: label, action: action, small: true)
     }
 }
 
