@@ -11,6 +11,7 @@ import SwiftUI
 class TutorialKeyboardViewController: SharedKeyboardViewController {
     
     override func viewDidLoad() {
+        self.bottomPadding = 60
         super.viewDidLoad()
         // For some reason this is required for the keyboard in-app
         // but breaks the view as a keyboard extension. There must be

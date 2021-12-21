@@ -31,6 +31,7 @@ struct Home: View {
                 .multilineTextAlignment(.center)
                 .font(.system(size: 20))
                 .padding()
+                .frame(maxWidth: 400)
             Spacer()
             
 
@@ -46,7 +47,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             Home()
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
