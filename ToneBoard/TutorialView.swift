@@ -85,7 +85,7 @@ struct ProgressBar: View {
         HStack {
             ForEach(0..<numSteps, id: \.self) { step in
                 Group {
-                    if (currentStep == step) {
+                    if (step <= currentStep) {
                         Circle().fill(progressColor)
                     } else {
                         Circle().strokeBorder(progressColor, lineWidth: 2)
@@ -242,6 +242,9 @@ struct Carousel: View {
             }
         }
         .frame(width: UIScreen.main.bounds.width, alignment: .leading)
+        // Necessary to prevent cards overflowing onto Home page during
+        // NavigationView transitions
+        .mask(Rectangle())
         .onChange(of: isDone) { _ in
             if isDone {
                 startBouncing()
