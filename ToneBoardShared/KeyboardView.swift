@@ -15,17 +15,19 @@ struct ToneBoardStyle {
     static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
     static let keyFontSizeSmall = 16.0
     static let keyFontSize = 24.0
+    static let candidateFontSize = 24.0
 }
 
 
 struct CandidateView: View {
     let candidate: String
     let action: () -> Void
+    let candidateFont = UIFont(name: "PingFangSC-Regular", size: ToneBoardStyle.candidateFontSize) ?? UIFont.systemFont(ofSize: ToneBoardStyle.candidateFontSize)
     
     var body: some View {
         Button(action: action) {
             Text(candidate)
-                .font(.system(size: 24))
+                .font(Font(candidateFont))
                 .foregroundColor(Color(UIColor.label))
                 .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                 .background(.gray.opacity(0.2))
