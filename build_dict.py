@@ -1,6 +1,8 @@
 from collections import defaultdict
 import json
+import os
 import re
+import sqlite3
 
 
 def load_one_grams(path):
@@ -48,10 +50,30 @@ def candidate_dict(cc_data, ngram_data):
             for k,v in reading_entries.items()}
 
 
+def save_json(d, path):
+    with open(path, 'w') as f:
+        json.dump(d, f, ensure_ascii=False)
+
+
+def save_sqlite(d, path):
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+    # Not bothering to normalize, as only 1-2% of candidates appear under
+    # multiple readings
+    cursor.execute("CREATE TABLE reading_candidates (reading, candidates)")
+    rows = [(reading, ' '.join(candidates)) for (reading, candidates) in d.items()]
+    cursor.executemany("INSERT INTO reading_candidates VALUES (?, ?)", rows)
+    conn.commit()
+    conn.close()
+
+
 
 if __name__ == '__main__':
     one_grams = load_one_grams('tmp/1grams.txt')
     cc = load_cc_cedict('tmp/cc_cedict.txt')
-    with open('dict.json', 'w') as f:
-        d = candidate_dict(cc, one_grams)
-        json.dump(d, f, ensure_ascii=False)
+    d = candidate_dict(cc, one_grams)
+    save_sqlite(d, 'dict.sqlite3')

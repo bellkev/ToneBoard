@@ -23,15 +23,22 @@ class ToneBoardTests: XCTestCase {
     }
     
     func testLoadDict() throws {
-        let dict = JsonCandidateDict()
+        let dict = SQLiteCandidateDict()
         let candidates = dict.candidates(["fei1", "chang2"])
         assert(candidates == ["非常"])
     }
     
     func testSubWords() throws {
-        let dict = JsonCandidateDict()
+        let dict = SQLiteCandidateDict()
         let candidates = dict.candidates(["dong1", "xi1", "nan2"])
         assert(candidates == ["东西南"])
+    }
+    
+    func testMultipleReulsts() throws {
+        let dict = SQLiteCandidateDict()
+        let candidates = dict.candidates(["wo3"])
+        assert(candidates == ["我", "婐"])
+
     }
 
 }

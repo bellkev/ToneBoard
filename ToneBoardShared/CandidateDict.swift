@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SQLite
 
 protocol CandidateDict {
     func candidates(_ syllables: [String]) -> [String]
@@ -24,33 +25,26 @@ struct SimpleCandidateDict: CandidateDict {
     }
 }
 
-struct JsonCandidateDict: CandidateDict {
-    let readingCandidates: [String: [String]]
+
+class SQLiteCandidateDict: CandidateDict {
+    
+    let db: Connection
+    let readingCandidates = Table("reading_candidates")
+    let reading = Expression<String>("reading")
+    let candidates = Expression<String>("candidates")
+
     
     init() {
-        let bundlePath = Bundle.main.path(forResource: "dict", ofType: "json")
-        let jsonData = try! String(contentsOfFile: bundlePath!).data(using: .utf8)
-        readingCandidates = try! JSONSerialization.jsonObject(with: jsonData!, options: []) as! [String: [String]]
+        let path = Bundle.main.path(forResource: "dict", ofType: "sqlite3")!
+        db = try! Connection(path, readonly: true)
     }
     
     func candidates(_ syllables: [String]) -> [String] {
-        return readingCandidates[syllables.joined(separator: " ")] ?? []
-    }
-}
-
-
-class LazyCandidateDict: CandidateDict {
-
-    // TODO: Likely need to make sure this isn't queried by anything while being updated from init
-    var dict: CandidateDict?
-    
-    init() {
-        Task {
-            dict = JsonCandidateDict()
+        
+        if let result = try! db.pluck(readingCandidates.filter(reading == syllables.joined(separator: " "))) {
+            return result[candidates].components(separatedBy: " ")
+        } else {
+            return []
         }
-    }
-    
-    func candidates(_ syllables: [String]) -> [String] {
-        dict?.candidates(syllables) ?? []
     }
 }

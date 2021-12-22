@@ -1,4 +1,6 @@
 dict.json
 /ToneBoard.xcodeproj/xcuserdata/
-/ToneBoard.xcodeproj/project.xcworkspace/xcuserdata/
+/ToneBoard.xcodeproj/project.xcworkspace/
 /tmp/
+__pycache__
+dict.sqlite3

@@ -29,9 +29,11 @@
 		0A63DB23276AB130002242BB /* SharedKeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */; };
 		0A63DB24276AB130002242BB /* SharedKeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */; };
 		0A63DB25276AB130002242BB /* SharedKeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */; };
-		0A6DDF97276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
-		0A6DDF98276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
-		0A6DDF99276150940088D783 /* dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A6DDF96276150940088D783 /* dict.json */; };
+		0A8407212772A7DB00A5C047 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0A8407202772A7DB00A5C047 /* SQLite */; };
+		0A8407242772A80D00A5C047 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0A8407232772A80D00A5C047 /* SQLite */; };
+		0A8407262772B2A200A5C047 /* dict.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0A8407252772B2A200A5C047 /* dict.sqlite3 */; };
+		0A8407272772B2A200A5C047 /* dict.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0A8407252772B2A200A5C047 /* dict.sqlite3 */; };
+		0A8407282772B2A200A5C047 /* dict.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0A8407252772B2A200A5C047 /* dict.sqlite3 */; };
 		0AA6A739276EF5F80043916D /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
 		0AE3AB6B276ED23600A07914 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3AB6A276ED23600A07914 /* AboutView.swift */; };
 /* End PBXBuildFile section */
@@ -86,7 +88,7 @@
 		0A60D57E275C880200FFAD22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
 		0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedKeyboardViewController.swift; sourceTree = "<group>"; };
-		0A6DDF96276150940088D783 /* dict.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dict.json; sourceTree = "<group>"; };
+		0A8407252772B2A200A5C047 /* dict.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; path = dict.sqlite3; sourceTree = "<group>"; };
 		0AE3AB6A276ED23600A07914 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -102,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A8407242772A80D00A5C047 /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +112,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A8407212772A7DB00A5C047 /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,12 +130,13 @@
 		0A60D55C275C865500FFAD22 = {
 			isa = PBXGroup;
 			children = (
-				0A6DDF96276150940088D783 /* dict.json */,
+				0A8407252772B2A200A5C047 /* dict.sqlite3 */,
 				0A60D60A275D80B900FFAD22 /* ToneBoardShared */,
 				0A60D567275C865500FFAD22 /* ToneBoard */,
 				0A60D57B275C880200FFAD22 /* ToneBoardExtension */,
 				0A46C18D27601EAF0079EF13 /* ToneBoardTests */,
 				0A60D566275C865500FFAD22 /* Products */,
+				0A8407222772A80D00A5C047 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -189,6 +194,13 @@
 			path = ToneBoardShared;
 			sourceTree = "<group>";
 		};
+		0A8407222772A80D00A5C047 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -225,6 +237,9 @@
 				0A60D580275C880200FFAD22 /* PBXTargetDependency */,
 			);
 			name = ToneBoard;
+			packageProductDependencies = (
+				0A8407232772A80D00A5C047 /* SQLite */,
+			);
 			productName = ToneBoard;
 			productReference = 0A60D565275C865500FFAD22 /* ToneBoard.app */;
 			productType = "com.apple.product-type.application";
@@ -242,6 +257,9 @@
 			dependencies = (
 			);
 			name = ToneBoardExtension;
+			packageProductDependencies = (
+				0A8407202772A7DB00A5C047 /* SQLite */,
+			);
 			productName = ToneBoardExtension;
 			productReference = 0A60D57A275C880200FFAD22 /* ToneBoardExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -277,6 +295,9 @@
 				Base,
 			);
 			mainGroup = 0A60D55C275C865500FFAD22;
+			packageReferences = (
+				0A84071F2772A7DB00A5C047 /* XCRemoteSwiftPackageReference "SQLite" */,
+			);
 			productRefGroup = 0A60D566275C865500FFAD22 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -293,7 +314,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A6DDF99276150940088D783 /* dict.json in Resources */,
+				0A8407282772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,8 +323,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */,
-				0A6DDF97276150940088D783 /* dict.json in Resources */,
 				0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */,
+				0A8407262772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,7 +332,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A6DDF98276150940088D783 /* dict.json in Resources */,
+				0A8407272772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -694,6 +715,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A84071F2772A7DB00A5C047 /* XCRemoteSwiftPackageReference "SQLite" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
+			requirement = {
+				kind = exactVersion;
+				version = 0.13.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0A8407202772A7DB00A5C047 /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A84071F2772A7DB00A5C047 /* XCRemoteSwiftPackageReference "SQLite" */;
+			productName = SQLite;
+		};
+		0A8407232772A80D00A5C047 /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A84071F2772A7DB00A5C047 /* XCRemoteSwiftPackageReference "SQLite" */;
+			productName = SQLite;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0A60D55D275C865500FFAD22 /* Project object */;
 }

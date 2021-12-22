@@ -41,7 +41,7 @@ class SharedKeyboardViewController: UIInputViewController {
         
         outer.allowsSelfSizing = true
         
-        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: LazyCandidateDict(), setupNextKeyboardButton: {
+        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: SQLiteCandidateDict(), setupNextKeyboardButton: {
             [unowned self]
             (_ button: UIButton) -> Void in
             let action = #selector(self.handleInputModeList(from:with:))
@@ -101,9 +101,13 @@ class SharedKeyboardViewController: UIInputViewController {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        // It seems that a keyboard from an extension is actually replaced with a new instance
-        // on rotation. It is still nice to update its size though for a smoother transition animation.
+        // Note that some apps like Safari seem to replace the keyboard instance on rotation
+        // while others like Notes do not.
         updateHeightConstraint()
     }
-
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        debugPrint("ToneBoardDebug: Received memory warning")
+    }
 }
