@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A0BCE832773C0AB00AE2A85 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A0BCE822773C0AB00AE2A85 /* LaunchScreen.storyboard */; };
 		0A1560C8276EA68400E192FF /* InstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560C7276EA68400E192FF /* InstallView.swift */; };
 		0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CB276EA71800E192FF /* TutorialView.swift */; };
 		0A1560CE276EA79900E192FF /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CD276EA79900E192FF /* Components.swift */; };
@@ -70,6 +71,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A0BCE822773C0AB00AE2A85 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0A1560C7276EA68400E192FF /* InstallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallView.swift; sourceTree = "<group>"; };
 		0A1560CB276EA71800E192FF /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		0A1560CD276EA79900E192FF /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				0A60D56C275C865700FFAD22 /* Assets.xcassets */,
+				0A0BCE822773C0AB00AE2A85 /* LaunchScreen.storyboard */,
 				0A1560CD276EA79900E192FF /* Components.swift */,
 				0A60D56A275C865500FFAD22 /* ContentView.swift */,
 				0A1560C7276EA68400E192FF /* InstallView.swift */,
@@ -323,6 +326,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */,
+				0A0BCE832773C0AB00AE2A85 /* LaunchScreen.storyboard in Resources */,
 				0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */,
 				0A8407262772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
@@ -580,6 +584,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -611,6 +616,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

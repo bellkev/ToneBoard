@@ -76,13 +76,14 @@ struct ProgressBar: View {
     
     let numSteps: Int
     let currentStep: Int
+    let size: CGFloat
     
     
     let progressColor = Color(UIColor.label)
 
     
     var body: some View {
-        HStack {
+        HStack(spacing: size) {
             ForEach(0..<numSteps, id: \.self) { step in
                 Group {
                     if (step <= currentStep) {
@@ -91,10 +92,9 @@ struct ProgressBar: View {
                         Circle().strokeBorder(progressColor, lineWidth: 2)
                     }
 
-                }.frame(width: 10, height: 10)
+                }.frame(width: size, height: size)
             }
         }
-        .frame(height: 20)
     }
 }
 
@@ -118,6 +118,7 @@ struct Step {
 
 struct Card: View {
     let step: Step
+    let padding: CGFloat
     
     @Binding var isDone: Bool
     @Binding var text: String
@@ -146,9 +147,9 @@ struct Card: View {
                 }
             }
         }
-        .padding()
+        .padding(padding)
         // Will be placed in a fixed-size container
-        .frame(maxWidth: .infinity, maxHeight: 350)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.gray.opacity(0.5))
         .cornerRadius(10)
         .onChange(of: text) { newText in
@@ -165,10 +166,10 @@ struct Card: View {
 
 struct Carousel: View {
     
-    let spacing = CGFloat(20)
-    let threshold = CGFloat(100)
-    
     let steps: [Step]
+    let cardPadding: CGFloat
+    let cardSpacing: CGFloat
+
 
     @Binding var currentStep: Int
     @Binding var text: String
@@ -178,12 +179,14 @@ struct Carousel: View {
     @State var bouncing = false
     @State var bounceTask: Task<Void, Error>? = nil
     
+    let threshold = CGFloat(100)
+    
     var cardWidth: CGFloat {
-        UIScreen.main.bounds.width - spacing * 4
+        UIScreen.main.bounds.width - cardPadding * 2 - cardSpacing * 2
     }
     
     var totalOffset: CGFloat {
-        offset + spacing * 2 - CGFloat(currentStep) * (cardWidth + spacing) + CGFloat(bouncing ? -10 : 0)
+        offset + cardPadding + cardSpacing - CGFloat(currentStep) * (cardWidth + cardSpacing) + CGFloat(bouncing ? -10 : 0)
     }
     
     var firstStep: Bool {
@@ -221,9 +224,9 @@ struct Carousel: View {
     }
     
     var body: some View {
-        HStack(spacing: spacing) {
+        HStack(spacing: cardSpacing) {
             ForEach(0..<steps.count, id: \.self) { step in
-                Card(step: steps[step], isDone: $isDone, text: $text, currentStep: $currentStep)
+                Card(step: steps[step], padding: cardPadding, isDone: $isDone, text: $text, currentStep: $currentStep)
                     .frame(width: cardWidth)
                     .offset(x: totalOffset, y: 0)
                     .animation(.easeOut(duration: 0.2), value: totalOffset)
@@ -258,11 +261,42 @@ struct Carousel: View {
 }
 
 
+enum DeviceSize {
+    case small, medium, large
+}
+
+
 struct TutorialView: View {
     
     @State var currentStep: Int = 0
     
     @State var text: String = ""
+    
+    var size: DeviceSize {
+        if UIScreen.main.bounds.height < 600 {
+            // Basically 1st gen SE and older
+            return .small
+        } else if UIDevice.current.userInterfaceIdiom == .pad {
+            return .large
+        } else {
+            return .medium
+        }
+    }
+    
+    var cardPadding: CGFloat {
+        switch size {
+        case .small:
+            return 10
+        case .medium:
+            return 20
+        case .large:
+            return 50
+        }
+    }
+    
+    var cardSpacing: CGFloat {
+        size == .large ? 200 : cardPadding
+    }
     
     let steps = [
         Step(title: "The Basics",
@@ -285,21 +319,32 @@ struct TutorialView: View {
     }
         
     var body: some View {
-        VStack(spacing: 20) {
-            ProgressBar(numSteps: steps.count, currentStep: currentStep)
-            Carousel(steps: steps, currentStep: $currentStep, text: $text)
+        VStack(spacing: 0) {
             Spacer()
+            VStack(spacing: 25) {
+                if (size == .large) {
+                    Divider().padding(20)
+                }
+                if (size != .small) {
+                    ProgressBar(numSteps: steps.count, currentStep: currentStep, size: size == .large ? 15 : 10)
+                }
+                Carousel(steps: steps, cardPadding: cardPadding, cardSpacing: cardSpacing, currentStep: $currentStep, text: $text)
+                if (size == .large) {
+                    Divider().padding(20)
+                }
+            }.frame(maxHeight: 400)
+            Spacer(minLength: 20)
             Group {
                 if lastStep {
                     NavigationLink(destination: InstallView()) {
                         BigButton("Install", primary: true)
                     }
                 } else {
-                    TutorialTextFieldView(text: $text).frame(height: 45)
+                    TutorialTextFieldView(text: $text).frame(height: size == .small ? 30 : 45)
 
                 }
             }
-            Spacer()
+            Spacer(minLength: 20)
         }
         .padding(EdgeInsets(top: 0, leading: 50, bottom: 0, trailing: 50))
         .navigationTitle("Try Now")
@@ -309,6 +354,26 @@ struct TutorialView: View {
 
 struct TutorialView_Previews: PreviewProvider {
     static var previews: some View {
-        TutorialView()
+        NavigationView {
+            VStack {
+                TutorialView()
+                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
+            }
+        }
+        .previewDevice("iPhone SE (1st Generation)")
+        NavigationView {
+            VStack {
+                TutorialView()
+                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
+            }
+        }
+        .previewDevice("iPhone 8")
+        NavigationView {
+            VStack {
+                TutorialView()
+                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
+            }
+        }.navigationViewStyle(StackNavigationViewStyle())
+        .previewDevice("iPad Pro (12.9-inch) (5th generation)")
     }
 }

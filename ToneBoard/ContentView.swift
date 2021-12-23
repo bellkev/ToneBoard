@@ -32,6 +32,7 @@ struct Home: View {
                 .font(.system(size: 20))
                 .padding()
                 .frame(maxWidth: 400)
+                .layoutPriority(1)
             Spacer()
             
 
@@ -55,6 +56,9 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
         .environment(\.sizeCategory, .extraExtraLarge)
-        .previewDevice("iPhone 8")
+        .previewDevice("iPhone SE (1st Generation)")
+        ContentView()
+        .environment(\.sizeCategory, .extraExtraLarge)
+        .previewDevice("iPhone 11 Pro Max")
     }
 }
