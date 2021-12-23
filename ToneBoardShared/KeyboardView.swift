@@ -16,21 +16,25 @@ struct ToneBoardStyle {
     static let keyFontSizeSmall = 16.0
     static let keyFontSize = 24.0
     static let candidateFontSize = 24.0
+    static let uiFont = UIFont(name: "PingFangSC-Regular", size: keyFontSize) ?? UIFont.systemFont(ofSize: keyFontSize)
+    static let keyFont = Font(uiFont)
+    static let keyFontSmall = Font(uiFont.withSize(keyFontSizeSmall))
+    static let candidateFont = Font(uiFont.withSize(candidateFontSize))
 }
 
 
 struct CandidateView: View {
     let candidate: String
     let action: () -> Void
-    let candidateFont = UIFont(name: "PingFangSC-Regular", size: ToneBoardStyle.candidateFontSize) ?? UIFont.systemFont(ofSize: ToneBoardStyle.candidateFontSize)
+    var highlight = false
     
     var body: some View {
         Button(action: action) {
             Text(candidate)
-                .font(Font(candidateFont))
+                .font(ToneBoardStyle.candidateFont)
                 .foregroundColor(Color(UIColor.label))
                 .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
-                .background(.gray.opacity(0.2))
+                .background(.gray.opacity(highlight ? 0.3 : 0.1))
                 .cornerRadius(4)
         }
     }
@@ -40,20 +44,18 @@ struct CandidateView: View {
 struct CandidatesView: View {
     
     let candidates: [String]
-    
     let selectCandidate: (String) -> Void
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            Group {
-                if (candidates.count > 0) {
-                    HStack {
-                        ForEach(candidates, id: \.self) { c in
-                            CandidateView(candidate: c, action: {selectCandidate(c)})
-                        }
-                    }
-                } else {
+            HStack(spacing: 5) {
+                if candidates.isEmpty {
                     CandidateView(candidate: " ", action: {}).opacity(0)
+                }
+                ForEach(0..<candidates.count, id: \.self) { c in
+                    CandidateView(candidate: candidates[c],
+                                  action: {selectCandidate(candidates[c])},
+                                  highlight: c == 0)
                 }
             }
         }
@@ -90,6 +92,7 @@ struct KeyContent: View {
         
     @GestureState var isTapped = false
     
+    
     var color: Color {
         (isTapped && !popUp) ? ToneBoardStyle.keyColorTapped : ToneBoardStyle.keyColor
     }
@@ -106,7 +109,7 @@ struct KeyContent: View {
                 Image(systemName: String(name))
             } else {
                 Text(label)
-                    .font(.system(size: small ? ToneBoardStyle.keyFontSizeSmall : ToneBoardStyle.keyFontSize))
+                    .font(small ? ToneBoardStyle.keyFontSmall : ToneBoardStyle.keyFont)
             }
         }
         .foregroundColor(Color(UIColor.label))
@@ -193,13 +196,17 @@ enum QwertyEvent {
 struct QwertyView: View {
     
     let keyAction: (String) -> Void
+    let toneAction: (String) -> Void
     let returnAction: () -> Void
+    let spaceAction: () -> Void
     let backspaceAction: () -> Void
     let setupNext: ((UIButton) -> Void)
     
     @State private var qwertyState: QwertyState = .normal
     
     @EnvironmentObject var deviceState: DeviceState
+    @Binding var rawInput: String
+    @Binding var candidates: [String]
     
     var rows: [String] {
         switch qwertyState {
@@ -269,6 +276,13 @@ struct QwertyView: View {
         }
     }
     
+    var spaceButton: some View {
+        SpecialKey(label: candidates.isEmpty ? "空格" : "选定", action: {
+            nextState(.tapAnyKey)
+            spaceAction()
+        })
+    }
+    
     var body: some View {
         GeometryReader {geo in
             VStack(spacing: 0) {
@@ -290,18 +304,20 @@ struct QwertyView: View {
                         if deviceState.needsInputModeSwitchKey {
                             NextKeyboardButton(setup: setupNext)
                                 .padding(ToneBoardStyle.keyPadding)
+                        } else {
+                            spaceButton
                         }
                     }.frame(width: geo.size.width * 0.25)
                     Group{
                         if (qwertyState == .normal) {
                             RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
-                                           ("5", "5")], keyAction: keyAction)
+                                           ("5", "5")], keyAction: toneAction)
                         } else {
-                            SpecialKey(label: "space", action: {tapKey(" ")})
+                            spaceButton
                         }
                     }
                     .frame(width: geo.size.width * 0.5)
-                    SpecialKey(label: "return", action: {
+                    SpecialKey(label: rawInput.isEmpty ? "换行" : "确认", action: {
                         nextState(.tapAnyKey)
                         returnAction()
                     })
@@ -319,14 +335,10 @@ struct KeyboardView: View {
     let dict: CandidateDict
     
     @State private var rawInput = ""
+    @State var candidates: [String] = []
     @EnvironmentObject var deviceState: DeviceState
 
     var setupNextKeyboardButton: ((UIButton) -> Void)
-    
-    var candidates: [String] {
-        let input = ToneBoardInput(rawInput)
-        return dict.candidates(input.syllables)
-    }
     
     func updateMarked() {
         let input = ToneBoardInput(rawInput)
@@ -340,7 +352,6 @@ struct KeyboardView: View {
     
     func insertAction(_ s: String) -> Void {
         rawInput += s
-        updateMarked()
     }
     
     func delete() {
@@ -348,8 +359,16 @@ struct KeyboardView: View {
             proxy.deleteBackward()
         } else {
             rawInput.remove(at: rawInput.index(before: rawInput.endIndex))
-            updateMarked()
         }
+    }
+    
+    func tone(_ s: String) -> Void {
+        // If a tone was the last thing entered, replace it
+        let input = ToneBoardInput(rawInput)
+        if !input.syllables.isEmpty && input.remainder.isEmpty {
+            delete()
+        }
+        rawInput += s
     }
     
     func commit() {
@@ -357,13 +376,11 @@ struct KeyboardView: View {
         // but works in other cases
         proxy.insertText(rawInput)
         rawInput = ""
-        updateMarked()
     }
     
     func selectCandidate(_ candidate: String) {
         proxy.insertText(candidate)
         rawInput = ""
-        updateMarked()
     }
     
     func newLine() {
@@ -373,18 +390,30 @@ struct KeyboardView: View {
             commit()
         }
     }
+    
+    func space() {
+        if candidates.isEmpty {
+            insertAction(" ")
+        } else {
+            selectCandidate(candidates[0])
+        }
+    }
 
     
     var body: some View {
         VStack {
             CandidatesView(candidates: candidates, selectCandidate: selectCandidate)
                 .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
-            QwertyView(keyAction: insertAction, returnAction: newLine, backspaceAction: delete, setupNext: setupNextKeyboardButton)
+            QwertyView(keyAction: insertAction, toneAction: tone, returnAction: newLine, spaceAction: space, backspaceAction: delete, setupNext: setupNextKeyboardButton, rawInput: $rawInput, candidates: $candidates)
 
         }
         .frame(maxWidth: 600)
         .onChange(of: deviceState.textLastChanged) { _ in
             rawInput = ""
+        }
+        .onChange(of: rawInput) { raw in
+            let input = ToneBoardInput(rawInput)
+            candidates = dict.candidates(input.syllables)
             updateMarked()
         }
     }
@@ -438,10 +467,11 @@ struct KeyboardView_Previews: PreviewProvider {
         let d = MockDict()
 //        let orientation = InterfaceOrientation.landscapeLeft
         let orientation = InterfaceOrientation.portrait
-        Color.black.opacity(0.9).overlay(KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
+        KeyboardView(proxy: p, dict: d, setupNextKeyboardButton: {_ in})
                                 .previewInterfaceOrientation(orientation)
                                 .previewDevice("iPhone 8")
-                                .environmentObject(DeviceState()))
+                                .environmentObject(DeviceState())
+                                .frame(height: 285)
         
         }
     
