@@ -5,24 +5,28 @@
 //  Created by Kevin Bell on 12/15/21.
 //
 
-import UIKit
+import Combine
 import SwiftUI
+import UIKit
 
 
-class DeviceState: ObservableObject {
+class InputState: ObservableObject {
     
     @Published var needsInputModeSwitchKey = false
-    @Published var textLastChanged = Date()
+    @Published var rawInput = ""
+    @Published var candidates: [String] = []
     
 }
 
 
 class SharedKeyboardViewController: UIInputViewController {
     
-    var deviceState = DeviceState()
+    var inputState = InputState()
     var bottomPadding = CGFloat(0)
     var heightConstraint: NSLayoutConstraint?
     var bottomConstraint: NSLayoutConstraint?
+    var candidateDict = SQLiteCandidateDict()
+    var inputSubscriber: AnyCancellable?
     
     override func updateViewConstraints() {
         super.updateViewConstraints()
@@ -35,18 +39,18 @@ class SharedKeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         
         // Perform custom UI setup here
-        guard let outer = inputView else {
-            return
-        }
-        
+        let outer = self.inputView!
         outer.allowsSelfSizing = true
         
-        let kbView = KeyboardView(proxy: self.textDocumentProxy, dict: SQLiteCandidateDict(), setupNextKeyboardButton: {
-            [unowned self]
+        inputSubscriber = inputState.$rawInput.sink { [unowned self] raw in
+            self.updateCandidates(raw)
+            self.updateMarked(raw)
+        }
+        let kbView = KeyboardView(proxy: self.textDocumentProxy, setupNextKeyboardButton: { [unowned self]
             (_ button: UIButton) -> Void in
             let action = #selector(self.handleInputModeList(from:with:))
             button.addTarget(self, action: action, for: .allTouchEvents)
-        }).environmentObject(deviceState)
+        }).environmentObject(inputState)
         let uhc = UIHostingController(rootView: kbView)
         self.addChild(uhc)
         outer.addSubview(uhc.view)
@@ -67,9 +71,6 @@ class SharedKeyboardViewController: UIInputViewController {
     }
     
     override func viewWillLayoutSubviews() {
-        // Note that "was called before..." warnings appear to happen no matter what: https://github.com/KeyboardKit/KeyboardKit/issues/83
-        // but at least this is where Apple says to call it in their sample extension
-        deviceState.needsInputModeSwitchKey = needsInputModeSwitchKey
         updateBottomConstraint()
         super.viewWillLayoutSubviews()
     }
@@ -80,7 +81,19 @@ class SharedKeyboardViewController: UIInputViewController {
     
     override func textDidChange(_ textInput: UITextInput?) {
         // The app has just changed the document's contents, the document context has been updated.
-        deviceState.textLastChanged = Date()
+        inputState.rawInput = ""
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        // Note that some apps like Safari seem to replace the keyboard instance on rotation
+        // while others like Notes do not.
+        updateHeightConstraint()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        debugPrint("ToneBoardDebug: Received memory warning")
     }
     
     func updateHeightConstraint() {
@@ -98,16 +111,21 @@ class SharedKeyboardViewController: UIInputViewController {
         }
         bottomConstraint!.constant = constant
     }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        // Note that some apps like Safari seem to replace the keyboard instance on rotation
-        // while others like Notes do not.
-        updateHeightConstraint()
+    
+    func updateMarked(_ raw: String) {
+        let input = ToneBoardInput(raw)
+        var temp = input.syllables
+        if !input.remainder.isEmpty {
+            temp += [input.remainder]
+        }
+        let tempStr = temp.joined(separator: " ")
+        // unmarkText does not seem to update the UI correctly in some cases (e.g. Reminders app search bar or Safari location bar)
+        // but works in other cases
+        textDocumentProxy.setMarkedText(tempStr, selectedRange: NSMakeRange(tempStr.count, 0))
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        debugPrint("ToneBoardDebug: Received memory warning")
+    func updateCandidates(_ raw: String) {
+        let input = ToneBoardInput(raw)
+        self.inputState.candidates = candidateDict.candidates(input.syllables)
     }
 }
