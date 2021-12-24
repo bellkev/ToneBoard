@@ -8,6 +8,23 @@
 import SwiftUI
 
 
+enum DeviceSize {
+    case small, medium, large
+}
+
+
+func deviceSize() -> DeviceSize {
+    if UIScreen.main.bounds.height < 600 {
+        // Basically 1st gen SE and older
+        return .small
+    } else if UIDevice.current.userInterfaceIdiom == .pad {
+        return .large
+    } else {
+        return .medium
+    }
+}
+
+
 class TutorialKeyboardViewController: SharedKeyboardViewController {
     
     override func viewDidLoad() {
@@ -24,17 +41,26 @@ class TutorialKeyboardViewController: SharedKeyboardViewController {
 
 
 class TutorialTextField: UITextField {
+    
+    var controller: TutorialKeyboardViewController?
         
     override var inputViewController: UIInputViewController? {
-        TutorialKeyboardViewController()
+        controller
     }
+}
+
+
+class TextFieldState: ObservableObject {
+    
+    @Published var text = ""
+    @Published var rawInput = ""
     
 }
 
 
 struct TutorialTextFieldView: UIViewRepresentable {
         
-    @Binding var text: String
+    @EnvironmentObject var state: TextFieldState
     
     class Coordinator: NSObject {
         var parent: TutorialTextFieldView
@@ -44,12 +70,15 @@ struct TutorialTextFieldView: UIViewRepresentable {
         }
         
         @objc func textFieldDidChange(_ field: TutorialTextField) {
-            parent.text = field.text ?? ""
+            let raw = field.controller?.inputState.rawInput ?? ""
+            parent.state.text = field.text ?? ""
+            parent.state.rawInput = field.controller?.inputState.rawInput ?? ""
         }
     }
         
     func makeUIView(context: Context) -> TutorialTextField {
         let textField = TutorialTextField()
+        textField.controller = TutorialKeyboardViewController()
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: textField.frame.height))
         textField.leftView = paddingView
         textField.leftViewMode = .always
@@ -63,7 +92,7 @@ struct TutorialTextFieldView: UIViewRepresentable {
     }
     
     func updateUIView(_ textField: TutorialTextField, context: Context) {
-        textField.text = text
+        textField.text = state.text
     }
     
     func makeCoordinator() -> Coordinator {
@@ -76,14 +105,14 @@ struct ProgressBar: View {
     
     let numSteps: Int
     let currentStep: Int
-    let size: CGFloat
-    
-    
     let progressColor = Color(UIColor.label)
-
+    
+    var diameter: CGFloat {
+        deviceSize() == .large ? 15 : 10
+    }
     
     var body: some View {
-        HStack(spacing: size) {
+        HStack(spacing: diameter) {
             ForEach(0..<numSteps, id: \.self) { step in
                 Group {
                     if (step <= currentStep) {
@@ -92,7 +121,7 @@ struct ProgressBar: View {
                         Circle().strokeBorder(progressColor, lineWidth: 2)
                     }
 
-                }.frame(width: size, height: size)
+                }.frame(width: diameter, height: diameter)
             }
         }
     }
@@ -102,10 +131,12 @@ struct ProgressBar: View {
 struct Substep {
     let instructions: String
     let target: String?
+    let rawTarget: String?
     
-    init(_ instructions: String, target: String? = nil) {
+    init(_ instructions: String, target: String? = nil, rawTarget: String? = nil) {
         self.instructions = instructions
         self.target = target
+        self.rawTarget = rawTarget
     }
 }
 
@@ -121,9 +152,8 @@ struct Card: View {
     let padding: CGFloat
     
     @Binding var isDone: Bool
-    @Binding var text: String
+    @EnvironmentObject var textFieldState: TextFieldState
     @Binding var currentStep: Int
-    
     @State var currentSubstep = 0
     
     func finishSubstep() {
@@ -133,13 +163,22 @@ struct Card: View {
         }
     }
     
+    func maybeFinishSubstep() {
+        if let raw = step.substeps[currentSubstep].rawTarget, textFieldState.rawInput != raw {
+            return
+        }
+        if textFieldState.text == step.substeps[currentSubstep].target {
+            finishSubstep()
+        }
+    }
+    
     var body: some View {
         VStack {
             Text(step.title).bold()
             ScrollView {
                 ZStack(alignment: .top) {
                     ForEach(0..<step.substeps.count, id: \.self) { substep in
-                        Text(step.substeps[substep].instructions)
+                        Text(try! AttributedString(markdown: step.substeps[substep].instructions, options: AttributedString.MarkdownParsingOptions(languageCode: "zh-CN")))
                             .multilineTextAlignment(.center)
                             .opacity(substep == currentSubstep ? 1 : 0)
                             .animation(.easeInOut(duration: 1), value: currentSubstep)
@@ -152,10 +191,13 @@ struct Card: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.gray.opacity(0.5))
         .cornerRadius(10)
-        .onChange(of: text) { newText in
-            if newText == step.substeps[currentSubstep].target {
-                finishSubstep()
-            }
+        // A bit of redundancy to work around the fact that there is no generic objectDidChange...
+        // https://forums.swift.org/t/combine-observableobject-in-uikit/28433
+        .onChange(of: textFieldState.text) { _ in
+            maybeFinishSubstep()
+        }
+        .onChange(of: textFieldState.rawInput) { _ in
+            maybeFinishSubstep()
         }
         .onChange(of: currentStep) { _ in
             currentSubstep = 0
@@ -167,17 +209,28 @@ struct Card: View {
 struct Carousel: View {
     
     let steps: [Step]
-    let cardPadding: CGFloat
-    let cardSpacing: CGFloat
-
 
     @Binding var currentStep: Int
-    @Binding var text: String
-    
+    @EnvironmentObject var textFieldState: TextFieldState
     @GestureState var offset = CGFloat(0)
     @State var isDone = false
     @State var bouncing = false
     @State var bounceTask: Task<Void, Error>? = nil
+    
+    var cardPadding: CGFloat {
+        switch deviceSize() {
+        case .small:
+            return 10
+        case .medium:
+            return 20
+        case .large:
+            return 50
+        }
+    }
+    
+    var cardSpacing: CGFloat {
+        deviceSize() == .large ? 200 : cardPadding
+    }
     
     let threshold = CGFloat(100)
     
@@ -199,7 +252,7 @@ struct Carousel: View {
     
     func resetStep() {
         isDone = false
-        text = ""
+        textFieldState.text = ""
         bounceTask?.cancel()
     }
     
@@ -226,7 +279,7 @@ struct Carousel: View {
     var body: some View {
         HStack(spacing: cardSpacing) {
             ForEach(0..<steps.count, id: \.self) { step in
-                Card(step: steps[step], padding: cardPadding, isDone: $isDone, text: $text, currentStep: $currentStep)
+                Card(step: steps[step], padding: cardPadding, isDone: $isDone, currentStep: $currentStep)
                     .frame(width: cardWidth)
                     .offset(x: totalOffset, y: 0)
                     .animation(.easeOut(duration: 0.2), value: totalOffset)
@@ -261,41 +314,13 @@ struct Carousel: View {
 }
 
 
-enum DeviceSize {
-    case small, medium, large
-}
-
-
 struct TutorialView: View {
     
-    @State var currentStep: Int = 0
-    
-    @State var text: String = ""
+    @State var currentStep = 0
+    @StateObject var textFieldState = TextFieldState()
     
     var size: DeviceSize {
-        if UIScreen.main.bounds.height < 600 {
-            // Basically 1st gen SE and older
-            return .small
-        } else if UIDevice.current.userInterfaceIdiom == .pad {
-            return .large
-        } else {
-            return .medium
-        }
-    }
-    
-    var cardPadding: CGFloat {
-        switch size {
-        case .small:
-            return 10
-        case .medium:
-            return 20
-        case .large:
-            return 50
-        }
-    }
-    
-    var cardSpacing: CGFloat {
-        size == .large ? 200 : cardPadding
+        deviceSize()
     }
     
     let steps = [
@@ -307,10 +332,46 @@ struct TutorialView: View {
              ]),
         Step(title: "Words",
              substeps: [
-                Substep("Now try inputting a multi-character word. Try typing \"fei1chang2\".", target: "fei1 chang2"),
-                Substep("Good! Notice that the syllables are displayed with a space between them for easier reading. Now select \"非常\".", target: "非常"),
-                Substep("Great! You input your first multi-character word.")
+                Substep("Now try inputting a compound word. Try typing \"ke3ai4\".", target: "ke3 ai4"),
+                Substep("Good! Notice that the syllables \"ke3 ai4\" are displayed with a space between them for easier reading. Now select \"可爱\" (_kě ài_, cute).", target: "可爱"),
+                Substep("Great! You input your first compound word.")
              ]),
+        Step(title: "Sentences",
+             substeps: [
+                Substep("ToneBoard does not try to make complete sentences for you, so you will need to input them one word at a time. Try inputting \"我喝水\" (_wǒ hē shuǐ_, or \"I drink water\") by typing \"wo3\", \"he1\", and \"shui3\" in sequence.", target: "我喝水"),
+                Substep("Good! Now finish the sentence with a Chinese full stop \"。\", which you can find by tapping \"123\".", target: "我喝水。"),
+                Substep("Good job! You typed a complete sentence.")
+             ]),
+        Step(title: "The Fifth Tone",
+             substeps: [
+                Substep("The so-called \"neutral tone\" or \"fifth tone\" is represented by the number 5. Try typing \"de5\" to input the common fifth-tone word \"的\" (_de_, possessive particle).", target: "de5"),
+                Substep("Good, now select the character \"的\".", target: "的"),
+                Substep("Good work!")
+             ]),
+        Step(title: "Typing \"Ü\"",
+             substeps: [
+                Substep("You can represent the \"ü\" Pinyin character with \"v\". Go ahead and try inputting \"女\" (_nǚ_, woman) by typing \"nv3\".", target: "nv3"),
+                Substep("Good, now select the character \"女\".", target: "女"),
+                Substep("Good work!")
+             ]),
+        Step(title: "Erhua",
+             substeps: [
+                Substep("You can input words featuring 儿化 (_ér huà_) by adding \"r5\". Try inputting 哪儿 (_nǎr_, where), by typing \"na3r5\".", target: "na3 r5"),
+                Substep("Good, now select \"哪儿\".", target: "哪儿"),
+                Substep("Great, now you know how to input any possible Chinese word!")
+             ]),
+        Step(title: "The Return Key",
+             substeps: [
+                Substep("The return key is normally labeled \"换行\" (_huànháng_, line feed), but if you type some Latin characters (a-z or A-Z) or tone numbers, the label changes to \"确认\" (_quèrèn_, confirm), allowing you to directly input text. Try it by typing \"hello\".", target: "hello"),
+                Substep("Good. Notice the highlighting indicating that the word isn't fully entered yet. Now hit \"确认\".", target: "hello", rawTarget: ""),
+                Substep("Great! Notice that the highlighting disappears, indicating that the text is fully entered, and the \"确认\" key goes back to \"换行\".")
+             ]),
+        Step(title: "The Space Key", substeps: [
+            Substep("In ToneBoard, the tone buttons take the normal place of the space bar, but there is still a small space key available labeled \"空格\" (_kòng gé_, space). Try using it to type \"hello world\".", target: "hello world"),
+            Substep("Good job! The space key has one more function–if you type a Chinese syllable, its label changes to \"选定\" (_xuǎn dìng_, select) and lets you input the first character choice. Try typing \"wo3\" and using this key to select the first choice of \"我\".", target: "wo3"),
+            Substep("Good, now tap \"选定\" to input the character \"我\".", target: "我"),
+            Substep("Good work! Now you know how to use every key on the keyboard.")
+        ]),
         Step(title: "The End", substeps: [Substep("That's it for the tutorial! Now that you know how to use ToneBoard, you can install it to use in other apps.")])
     ]
     
@@ -326,9 +387,9 @@ struct TutorialView: View {
                     Divider().padding(20)
                 }
                 if (size != .small) {
-                    ProgressBar(numSteps: steps.count, currentStep: currentStep, size: size == .large ? 15 : 10)
+                    ProgressBar(numSteps: steps.count, currentStep: currentStep)
                 }
-                Carousel(steps: steps, cardPadding: cardPadding, cardSpacing: cardSpacing, currentStep: $currentStep, text: $text)
+                Carousel(steps: steps, currentStep: $currentStep)
                 if (size == .large) {
                     Divider().padding(20)
                 }
@@ -340,7 +401,7 @@ struct TutorialView: View {
                         BigButton("Install", primary: true)
                     }
                 } else {
-                    TutorialTextFieldView(text: $text).frame(height: size == .small ? 30 : 45)
+                    TutorialTextFieldView().frame(height: size == .small ? 30 : 45)
 
                 }
             }
@@ -349,18 +410,19 @@ struct TutorialView: View {
         .padding(EdgeInsets(top: 0, leading: 50, bottom: 0, trailing: 50))
         .navigationTitle("Try Now")
         .navigationBarTitleDisplayMode(.inline)
+        .environmentObject(textFieldState)
     }
 }
 
 struct TutorialView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            VStack {
-                TutorialView()
-                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
-            }
-        }
-        .previewDevice("iPhone SE (1st Generation)")
+//        NavigationView {
+//            VStack {
+//                TutorialView()
+//                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
+//            }
+//        }
+//        .previewDevice("iPhone SE (1st Generation)")
         NavigationView {
             VStack {
                 TutorialView()
@@ -368,12 +430,12 @@ struct TutorialView_Previews: PreviewProvider {
             }
         }
         .previewDevice("iPhone 8")
-        NavigationView {
-            VStack {
-                TutorialView()
-                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
-            }
-        }.navigationViewStyle(StackNavigationViewStyle())
-        .previewDevice("iPad Pro (12.9-inch) (5th generation)")
+//        NavigationView {
+//            VStack {
+//                TutorialView()
+//                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
+//            }
+//        }.navigationViewStyle(StackNavigationViewStyle())
+//        .previewDevice("iPad Pro (12.9-inch) (5th generation)")
     }
 }
