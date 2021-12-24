@@ -92,6 +92,20 @@ struct KeyContent: View {
         
     @GestureState var isTapped = false
     
+    // Hardcoding this for now, should approximate half the width of full-width
+    // glyph in a character used on a key
+    let halfWidth = CGFloat(7)
+    
+    var xOffset: CGFloat {
+        // Tweak full-width characters a bit so they are centered in keys
+        if "（【｛《".contains(label) {
+            return -halfWidth
+        } else if "）。，、】｝》，、？！".contains(label) {
+           return halfWidth
+        }
+        return 0
+    }
+    
     
     var color: Color {
         (isTapped && !popUp) ? ToneBoardStyle.keyColorTapped : ToneBoardStyle.keyColor
@@ -110,6 +124,7 @@ struct KeyContent: View {
             } else {
                 Text(label)
                     .font(small ? ToneBoardStyle.keyFontSmall : ToneBoardStyle.keyFont)
+                    .offset(x: xOffset, y: 0)
             }
         }
         .foregroundColor(Color(UIColor.label))
@@ -196,6 +211,7 @@ enum QwertyEvent {
 struct QwertyView: View {
     
     let keyAction: (String) -> Void
+    let symbolAction: (String) -> Void
     let toneAction: (String) -> Void
     let returnAction: () -> Void
     let spaceAction: () -> Void
@@ -221,7 +237,11 @@ struct QwertyView: View {
     
     func tapKey(_ s: String) {
         nextState(.tapAnyKey)
-        keyAction(s)
+        if [.number, .symbol].contains(qwertyState) {
+            symbolAction(s)
+        } else {
+            keyAction(s)
+        }
     }
     
     // FSM to control transitions between shift/numlock/etc states
@@ -338,6 +358,14 @@ struct KeyboardView: View {
         inputState.rawInput += s
     }
     
+    func symbol(_ s: String) -> Void {
+        if inputState.rawInput.isEmpty {
+            proxy.insertText(s)
+        } else {
+            inputState.rawInput += s
+        }
+    }
+    
     func delete() {
         if inputState.rawInput.isEmpty {
             proxy.deleteBackward()
@@ -375,7 +403,7 @@ struct KeyboardView: View {
     
     func space() {
         if inputState.candidates.isEmpty {
-            insertAction(" ")
+            symbol(" ")
         } else {
             selectCandidate(inputState.candidates[0])
         }
@@ -386,7 +414,7 @@ struct KeyboardView: View {
         VStack {
             CandidatesView(selectCandidate: selectCandidate)
                 .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
-            QwertyView(keyAction: insertAction, toneAction: tone, returnAction: newLine, spaceAction: space, backspaceAction: delete, setupNext: setupNextKeyboardButton)
+            QwertyView(keyAction: insertAction, symbolAction: symbol, toneAction: tone, returnAction: newLine, spaceAction: space, backspaceAction: delete, setupNext: setupNextKeyboardButton)
 
         }
         .frame(maxWidth: 600)
