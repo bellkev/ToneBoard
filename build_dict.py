@@ -64,7 +64,10 @@ def save_sqlite(d, path):
     cursor = conn.cursor()
     # Not bothering to normalize, as only 1-2% of candidates appear under
     # multiple readings
-    cursor.execute("CREATE TABLE reading_candidates (reading, candidates)")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS reading_candidates(
+                      reading TEXT PRIMARY KEY,
+                      candidates TEXT
+                   ) WITHOUT ROWID;""")
     rows = [(reading, ' '.join(candidates)) for (reading, candidates) in d.items()]
     cursor.executemany("INSERT INTO reading_candidates VALUES (?, ?)", rows)
     conn.commit()
