@@ -83,7 +83,7 @@ struct TutorialTextFieldView: UIViewRepresentable {
         textField.leftView = paddingView
         textField.leftViewMode = .always
         textField.placeholder = "Type here..."
-        textField.font = .systemFont(ofSize: 25)
+        textField.font = ToneBoardStyle.uiFont.withSize(25)
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.label.cgColor
         textField.layer.cornerRadius = 10
@@ -180,12 +180,17 @@ struct Card: View {
         VStack {
             Text(step.title).bold()
             ScrollView {
-                ZStack(alignment: .top) {
-                    ForEach(0..<step.substeps.count, id: \.self) { substep in
-                        Text(try! AttributedString(markdown: step.substeps[substep].instructions, options: AttributedString.MarkdownParsingOptions(languageCode: "zh-CN")))
-                            .multilineTextAlignment(.center)
-                            .opacity(substep == currentSubstep ? 1 : 0)
-                            .animation(.easeInOut(duration: 1), value: currentSubstep)
+                ScrollViewReader { proxy in
+                    ZStack(alignment: .top) {
+                        ForEach(0..<step.substeps.count, id: \.self) { substep in
+                            Text(try! AttributedString(markdown: step.substeps[substep].instructions, options: AttributedString.MarkdownParsingOptions(languageCode: "zh-CN")))
+                                .multilineTextAlignment(.center)
+                                .opacity(substep == currentSubstep ? 1 : 0)
+                                .animation(.easeInOut(duration: 1), value: currentSubstep)
+                        }
+                    }.id(1)
+                    .onChange(of: currentSubstep) { _ in
+                        proxy.scrollTo(1, anchor: .top)
                     }
                 }
             }
@@ -233,7 +238,7 @@ struct Carousel: View {
     }
     
     var cardSpacing: CGFloat {
-        deviceSize() == .large ? 200 : cardPadding
+        deviceSize() == .large ? UIScreen.main.bounds.width * 0.1 : cardPadding
     }
     
     let threshold = CGFloat(100)
@@ -342,16 +347,16 @@ struct TutorialView: View {
              ]),
         Step(title: "The Space Key", substeps: [
             Substep("In ToneBoard, the tone buttons take the normal place of the space bar, but there is still a small space key available labeled \"空格\" (_kòng gé_, space). Try using it to type \"hello world\".", target: "hello world"),
-            Substep("Good job! (Note that some devices may replace the space button with a keyboard selection button, but you can always access a space button using the shift key.)")
+            Substep("Good job! (Note that some devices may replace the space key with a keyboard selection button, but you can always access a space key using the shift key.)")
             ]),
         Step(title: "Character Selection", substeps: [
-            Substep("The space key has one more function–when there are character choices displayed in the top bar, the space button's label changes to \"选定\" (_xuǎn dìng_, select) and lets you input the first character choice. Try typing \"wo3\" and using this key to select the first choice of \"我\".", target: "wo3"),
+            Substep("The space key has one more function–when there are character choices displayed in the top bar, the space key's label changes to \"选定\" (_xuǎn dìng_, select) and lets you input the first character choice. Try typing \"wo3\" and using this key to select the first choice of \"我\".", target: "wo3"),
             Substep("Good, now tap \"选定\" to input the character \"我\".", target: "我"),
             Substep("Good work! Now you know how to use every key on the keyboard.")
             ]),
         Step(title: "Words",
              substeps: [
-                Substep("Now try inputting a compound word. Try inputting \"可爱\" (_kě ài_, cute) by typing \"ke3ai4\".", target: "ke3 ai4"),
+                Substep("Now try inputting a compound word. Try entering \"可爱\" (_kě ài_, cute) by typing \"ke3ai4\".", target: "ke3 ai4"),
                 Substep("Good! Notice that the syllables \"ke3 ai4\" are displayed with a space between them for easier reading. Now select \"可爱\".", target: "可爱"),
                 Substep("Great! You input your first compound word.")
              ]),
@@ -382,7 +387,7 @@ struct TutorialView: View {
              substeps: [
                 Substep("You can represent the \"ü\" Pinyin character with \"v\". Go ahead and try inputting \"女\" (_nǚ_, woman) by typing \"nv3\".", target: "nv3"),
                 Substep("Good, now select the character \"女\".", target: "女"),
-                Substep("Good work!")
+                Substep("Great job!")
              ]),
         Step(title: "Erhua",
              substeps: [
@@ -411,7 +416,7 @@ struct TutorialView: View {
                 if (size == .large) {
                     Divider().padding(20)
                 }
-            }.frame(maxHeight: 400)
+            }.frame(maxHeight: 600)
             Spacer(minLength: 20)
             Group {
                 if lastStep {
@@ -419,7 +424,9 @@ struct TutorialView: View {
                         BigButton("Install", primary: true)
                     }
                 } else {
-                    TutorialTextFieldView().frame(height: size == .small ? 30 : 45)
+                    TutorialTextFieldView()
+                        .frame(height: size == .small ? 30 : 45)
+                        .frame(maxWidth: 300)
 
                 }
             }
@@ -454,6 +461,6 @@ struct TutorialView_Previews: PreviewProvider {
 //                Rectangle().frame(width:UIScreen.main.bounds.height, height: 280)
 //            }
 //        }.navigationViewStyle(StackNavigationViewStyle())
-//        .previewDevice("iPad Pro (12.9-inch) (5th generation)")
+//        .previewDevice("iPad Mini (6th generation)")
     }
 }
