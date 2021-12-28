@@ -1,6 +1,6 @@
 # ToneBoard
 
-ToneBoard is a Chinese keyboard for iOS that requires you to enter the correct tones while typing simplified Chinese with Pinyin.
+ToneBoard is a Chinese keyboard for iOS that requires you to enter the correct tones while typing simplified Chinese with Pinyin. It is [available on the Apple App Store](https://apps.apple.com/us/app/toneboard-keyboard/id1602036971).
 
 
 ## Motivation
