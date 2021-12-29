@@ -5,7 +5,7 @@ ToneBoard is a Chinese keyboard for iOS that requires you to enter the correct t
 ## Demo Video
 Here is a short video showing how ToneBoard works. The video is from the in-app tutorial, but you can use ToneBoard in any application in iOS once enabled in Settings.
 
-[![ToneBoard Demo Video](https://img.youtube.com/vi/I7xy4uW1pwQ/0.jpg)](https://www.youtube.com/watch?v=I7xy4uW1pwQ)
+[![ToneBoard Demo Video](https://bellkev-assets.s3.us-west-2.amazonaws.com/toneboard_video_still.png)](https://bellkev-assets.s3.us-west-2.amazonaws.com/toneboard_video.mp4)
 
 
 ## Motivation
