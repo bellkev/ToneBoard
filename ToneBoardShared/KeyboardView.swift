@@ -9,8 +9,16 @@ import SwiftUI
 
 
 struct ToneBoardStyle {
-    static let keyColor = Color.gray
-    static let keyColorTapped = Color.gray.opacity(0.7)
+    static let keyColor = Color.white
+    static let specialKeyColor = Color(red: 0.66, green: 0.69, blue: 0.73)
+    static let specialKeyColorTapped = Color.white
+    static let keyColorDark = Color(hue: 0, saturation: 0, brightness: 0.3, opacity: 1)
+    static let specialKeyColorDark = Color(hue: 0, saturation: 0, brightness: 0.1, opacity: 1)
+    static let specialKeyColorTappedDark = Color(hue: 0, saturation: 0, brightness: 0.3, opacity: 1)
+    static let candidateBackgroundColor = Color.black.opacity(0.05)
+    static let candidateHighlightColor = Color.white
+    static let candidateBackgroundColorDark = Color(hue: 0, saturation: 0, brightness: 0.05, opacity: 1)
+    static let candidateHighlightColorDark = Color(hue: 0, saturation: 0, brightness: 0.2, opacity: 1)
     static let keyCornerRadius = 4.0
     static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
     static let keyFontSizeSmall = 16.0
@@ -28,13 +36,27 @@ struct CandidateView: View {
     let action: () -> Void
     var highlight = false
     
+    @Environment(\.colorScheme) var colorScheme
+    
+    var backgroundColor: Color {
+        if colorScheme == .dark && highlight {
+            return ToneBoardStyle.candidateHighlightColorDark
+        } else if colorScheme == .dark {
+            return ToneBoardStyle.candidateBackgroundColorDark
+        } else if highlight {
+            return ToneBoardStyle.candidateHighlightColor
+        } else {
+            return ToneBoardStyle.candidateBackgroundColor
+        }
+    }
+    
     var body: some View {
         Button(action: action) {
             Text(candidate)
                 .font(ToneBoardStyle.candidateFont)
                 .foregroundColor(Color(UIColor.label))
                 .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
-                .background(.gray.opacity(highlight ? 0.3 : 0.1))
+                .background(backgroundColor)
                 .cornerRadius(4)
         }
     }
@@ -92,6 +114,8 @@ struct KeyContent: View {
         
     @GestureState var isTapped = false
     
+    @Environment(\.colorScheme) var colorScheme
+    
     // Hardcoding this for now, should approximate half the width of full-width
     // glyph in a character used on a key
     let halfWidth = CGFloat(7)
@@ -108,7 +132,19 @@ struct KeyContent: View {
     
     
     var color: Color {
-        (isTapped && !popUp) ? ToneBoardStyle.keyColorTapped : ToneBoardStyle.keyColor
+        if isTapped && !popUp && colorScheme == .dark {
+            return ToneBoardStyle.specialKeyColorTappedDark
+        } else if !popUp && colorScheme == .dark {
+            return ToneBoardStyle.specialKeyColorDark
+        } else if colorScheme == .dark {
+            return ToneBoardStyle.keyColorDark
+        } else if isTapped && !popUp {
+            return ToneBoardStyle.specialKeyColorTapped
+        } else if !popUp {
+            return ToneBoardStyle.specialKeyColor
+        } else {
+            return ToneBoardStyle.keyColor
+        }
     }
     
     var isPoppedUp: Bool {
@@ -120,7 +156,7 @@ struct KeyContent: View {
         Group {
             if label.starts(with: "SF:") {
                 let name = label.split(separator: ":")[1]
-                Image(systemName: String(name))
+                Image(systemName: String(name)).font(.system(size: 20, weight: .light))
             } else {
                 Text(label)
                     .font(small ? ToneBoardStyle.keyFontSmall : ToneBoardStyle.keyFont)
@@ -143,9 +179,10 @@ struct KeyContent: View {
         // It's surprisingly hard to compose these modifiers conditionally with if/else,
         // as any branching results in a ConditionalContent view that does not have a single
         // consistent identity for the tap/release gesture
-        .scaleEffect(isPoppedUp ? 1.3 : 1)
-        .offset(x:0, y: isPoppedUp ? -40 : 0)
-        .shadow(color: .black.opacity(isPoppedUp ? 1 : 0), radius: 2)
+        .scaleEffect(isPoppedUp ? 1.4 : 1)
+        .offset(x:0, y: isPoppedUp ? -50 : 0)
+        .shadow(color: .black.opacity(isPoppedUp ? 1 : 0), radius: 1)
+        .zIndex(isPoppedUp ? 1 : 0)
     }
 
 }
@@ -349,10 +386,12 @@ struct QwertyView: View {
 struct KeyboardView: View {
     
     let proxy: UITextDocumentProxy
+    
+    var setupNextKeyboardButton: ((UIButton) -> Void)
         
     @EnvironmentObject var inputState: InputState
-
-    var setupNextKeyboardButton: ((UIButton) -> Void)
+    
+    @Environment(\.colorScheme) var colorScheme
     
     func insertAction(_ s: String) -> Void {
         inputState.rawInput += s
@@ -410,7 +449,7 @@ struct KeyboardView: View {
     }
 
     
-    var body: some View {
+    var inner: some View {
         VStack {
             CandidatesView(selectCandidate: selectCandidate)
                 .padding(EdgeInsets(top:10, leading: 5, bottom:0, trailing: 5))
@@ -420,7 +459,18 @@ struct KeyboardView: View {
         .frame(maxWidth: 600)
     }
     
+    var body: some View {
+        if colorScheme == .dark {
+            // The goal here is to replicate system dark keyboard behavior:
+            // Labels are opaque white, keys are translucent, and popped-up keys have the same color/alpha values as other keys
+            inner.compositingGroup().luminanceToAlpha().colorInvert()
+        } else {
+            inner
+        }
+    }
+    
 }
+
 
 class MockTextProxy: NSObject, UITextDocumentProxy {
     
@@ -457,23 +507,24 @@ class MockTextProxy: NSObject, UITextDocumentProxy {
     }
 }
 
-struct MockDict: CandidateDict {
-    func candidates(_ syllables: [String]) -> [String] {
-        ["不", "部", "步", "布", "簿", "埔", "歩", "怖", "埠", "埗", "鈈", "蔀", "吥", "鈽", "佈", "歨", "餔", "篰", "悑", "捗", "瓿"]
-    }
-}
 
 struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
         let p = MockTextProxy()
 //        let orientation = InterfaceOrientation.landscapeLeft
         let orientation = InterfaceOrientation.portrait
-        KeyboardView(proxy: p, setupNextKeyboardButton: {_ in})
-                                .previewInterfaceOrientation(orientation)
-                                .previewDevice("iPhone 8")
-                                .environmentObject(InputState())
-                                .frame(height: 285)
-        
+        let state = InputState()
+        state.candidates = ["不", "部", "步", "布"]
+        return ZStack {
+            Rectangle().fill(.gray).opacity(0.5).frame(width:UIScreen.main.bounds.width, height: 300)
+//            Rectangle().fill(.white.opacity(0.5)).frame(width:200, height: 300).offset(x:100, y: 0)
+            KeyboardView(proxy: p, setupNextKeyboardButton: {_ in})
+                                    .previewInterfaceOrientation(orientation)
+                                    .previewDevice("iPhone 8")
+                                    .environmentObject(state)
+                                    .frame(height: 285)
+//                                    .preferredColorScheme(.dark)
+            
+            }
         }
-    
 }
