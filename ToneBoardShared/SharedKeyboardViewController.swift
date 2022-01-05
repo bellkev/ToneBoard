@@ -97,7 +97,7 @@ class SharedKeyboardViewController: UIInputViewController {
     }
     
     func updateHeightConstraint() {
-        var constant = min(CGFloat(280), UIScreen.main.bounds.height * 0.45)
+        var constant = min(CGFloat(288), UIScreen.main.bounds.height * 0.45)
         if traitCollection.verticalSizeClass == .compact {
             constant = 230
         }

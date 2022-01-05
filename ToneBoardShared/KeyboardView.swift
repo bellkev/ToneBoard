@@ -19,8 +19,8 @@ struct ToneBoardStyle {
     static let candidateHighlightColor = Color.white
     static let candidateBackgroundColorDark = Color(hue: 0, saturation: 0, brightness: 0.05, opacity: 1)
     static let candidateHighlightColorDark = Color(hue: 0, saturation: 0, brightness: 0.2, opacity: 1)
-    static let keyCornerRadius = 4.0
-    static let keyPadding = EdgeInsets(top: 5, leading: 2.5, bottom: 5, trailing: 2.5)
+    static let keyCornerRadius = 6.0
+    static let keyPadding = EdgeInsets(top: 6, leading: 3, bottom: 5, trailing: 3)
     static let keyFontSizeSmall = 16.0
     static let keyFontSize = 24.0
     static let candidateFontSize = 24.0
@@ -28,6 +28,8 @@ struct ToneBoardStyle {
     static let keyFont = Font(uiFont)
     static let keyFontSmall = Font(uiFont.withSize(keyFontSizeSmall))
     static let candidateFont = Font(uiFont.withSize(candidateFontSize))
+    // Match system keyboard for A-Z, a-z, but use PingFang elsewhere
+    static let keyFontLetters = Font.system(size: keyFontSize)
 }
 
 
@@ -124,7 +126,7 @@ struct KeyContent: View {
         // Tweak full-width characters a bit so they are centered in keys
         if "（【｛《".contains(label) {
             return -halfWidth
-        } else if "）。，、】｝》，、？！".contains(label) {
+        } else if "：；）。，、】｝》，、？！".contains(label) {
            return halfWidth
         }
         return 0
@@ -144,6 +146,17 @@ struct KeyContent: View {
             return ToneBoardStyle.specialKeyColor
         } else {
             return ToneBoardStyle.keyColor
+        }
+    }
+    
+    var font: Font {
+        let scalars = label.unicodeScalars
+        if small {
+            return ToneBoardStyle.keyFontSmall
+        } else if CharacterSet.letters.contains(scalars.first!) {
+            return ToneBoardStyle.keyFontLetters
+        } else {
+            return ToneBoardStyle.keyFont
         }
     }
     
@@ -168,6 +181,10 @@ struct KeyContent: View {
         .background(color)
         .cornerRadius(ToneBoardStyle.keyCornerRadius)
         .padding(ToneBoardStyle.keyPadding)
+        // There seems to be a bug preventing contentShape from working normally in a custom keyboard
+        // it works for the in-app version of the keyboard but not in the systemwide mode.
+        // Falling back on the not-quite-transparent hack to make the space around keys tappable.
+        .background(.black.opacity(0.001))
         .gesture(
             DragGesture(minimumDistance: 0)
                 .updating($isTapped) { _, state, _ in
@@ -343,7 +360,7 @@ struct QwertyView: View {
             VStack(spacing: 0) {
                 RowView(keys: rows[0], keyAction: tapKey)
                 RowView(keys: rows[1], keyAction: tapKey)
-                    .frame(width: geo.size.width * (qwertyState == .normal ? 0.9 : 1.0))
+                    .frame(width: geo.size.width * ([.number, .symbol].contains(qwertyState) ? 1 : 0.9))
                 HStack {
                     SpecialKey(label: shiftContent, action: {nextState(.tapShift)})
                     RowView(keys: rows[2], keyAction: tapKey)
@@ -456,6 +473,7 @@ struct KeyboardView: View {
             QwertyView(keyAction: insertAction, symbolAction: symbol, toneAction: tone, returnAction: newLine, spaceAction: space, backspaceAction: delete, setupNext: setupNextKeyboardButton)
 
         }
+        .padding(EdgeInsets(top: 0, leading: 1, bottom: 0, trailing: 1))
         .frame(maxWidth: 600)
     }
     
