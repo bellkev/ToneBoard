@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct ToneBoardStyle {
+
+    
     static let keyColor = Color.white
     static let specialKeyColor = Color(red: 0.66, green: 0.69, blue: 0.73)
     static let specialKeyColorTapped = Color.white
@@ -24,12 +26,15 @@ struct ToneBoardStyle {
     static let keyFontSizeSmall = 16.0
     static let keyFontSize = 24.0
     static let candidateFontSize = 24.0
-    static let uiFont = UIFont(name: "PingFangSC-Regular", size: keyFontSize) ?? UIFont.systemFont(ofSize: keyFontSize)
-    static let keyFont = Font(uiFont)
-    static let keyFontSmall = Font(uiFont.withSize(keyFontSizeSmall))
-    static let candidateFont = Font(uiFont.withSize(candidateFontSize))
-    // Match system keyboard for A-Z, a-z, but use PingFang elsewhere
-    static let keyFontLetters = Font.system(size: keyFontSize)
+    static var keyFont: UIFont {
+        guard let ctFontChinese = CTFontCreateUIFontForLanguage(.system, keyFontSize, "zh-Hans" as CFString) else {
+            return UIFont.systemFont(ofSize: keyFontSize)
+        }
+        return ctFontChinese as UIFont
+    }
+    
+    static let keyFontSmall = keyFont.withSize(keyFontSizeSmall)
+    static let candidateFont = keyFont.withSize(candidateFontSize)
 }
 
 
@@ -39,6 +44,7 @@ struct CandidateView: View {
     var highlight = false
     
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var inputState: InputState
     
     var backgroundColor: Color {
         if colorScheme == .dark && highlight {
@@ -52,12 +58,16 @@ struct CandidateView: View {
         }
     }
     
+    var verticalPadding: CGFloat {
+        inputState.compact ? 2 : 6
+    }
+    
     var body: some View {
         Button(action: action) {
             Text(candidate)
-                .font(ToneBoardStyle.candidateFont)
+                .font(Font(ToneBoardStyle.candidateFont))
                 .foregroundColor(Color(UIColor.label))
-                .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                .padding(EdgeInsets(top: verticalPadding, leading: 12, bottom: verticalPadding, trailing: 12))
                 .background(backgroundColor)
                 .cornerRadius(4)
         }
@@ -115,8 +125,8 @@ struct KeyContent: View {
     var popUp = false
         
     @GestureState var isTapped = false
-    
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var inputState: InputState
     
     // Hardcoding this for now, should approximate half the width of full-width
     // glyph in a character used on a key
@@ -149,14 +159,28 @@ struct KeyContent: View {
         }
     }
     
-    var font: Font {
-        let scalars = label.unicodeScalars
+    var scalar: UnicodeScalar {
+        label.unicodeScalars.first!
+    }
+    
+    var isLowercase: Bool {
+        CharacterSet.lowercaseLetters.contains(label.unicodeScalars.first!)
+    }
+    
+    var isUppercase: Bool {
+        CharacterSet.uppercaseLetters.contains(scalar) || CharacterSet.decimalDigits.contains(scalar)
+    }
+    
+    var baselineOffset: CGFloat {
+        // Tweaks to center labels in the keys better, especially for landscape
         if small {
-            return ToneBoardStyle.keyFontSmall
-        } else if CharacterSet.letters.contains(scalars.first!) {
-            return ToneBoardStyle.keyFontLetters
+            return 0
+        } else if isLowercase {
+            return 2
+        } else if isUppercase {
+            return -2
         } else {
-            return ToneBoardStyle.keyFont
+            return 0
         }
     }
     
@@ -172,10 +196,13 @@ struct KeyContent: View {
                 Image(systemName: String(name)).font(.system(size: 20, weight: .light))
             } else {
                 Text(label)
-                    .font(small ? ToneBoardStyle.keyFontSmall : ToneBoardStyle.keyFont)
+                    .font(Font(small ? ToneBoardStyle.keyFontSmall : ToneBoardStyle.keyFont))
+                    .baselineOffset(baselineOffset)
                     .offset(x: xOffset, y: 0)
             }
         }
+        // Need to reduce the extra space above/below glyphs for landscape
+        .padding(EdgeInsets(top: small ? 0 : -2.5, leading: 0, bottom: small ? 0 : -2.5, trailing: 0))
         .foregroundColor(Color(UIColor.label))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(color)
@@ -229,7 +256,6 @@ struct SpecialKey: View {
 struct RowView: View {
     
     let keys: [(String, String)]
-    
     let keyAction: (String) -> Void
     
     init(keys: String, keyAction: @escaping (String) -> Void) {
@@ -324,6 +350,10 @@ struct QwertyView: View {
         }
     }
     
+    var numberOrSymbol: Bool {
+        [.number, .symbol].contains(qwertyState)
+    }
+    
     var shiftContent: String {
         switch qwertyState {
         case .normal:
@@ -338,16 +368,7 @@ struct QwertyView: View {
             return "123"
         }
     }
-    
-    var numContent: String {
-        switch qwertyState {
-        case .normal, .justShift, .shift, .capsLock:
-            return "123"
-        case .number, .symbol:
-            return "ABC"
-        }
-    }
-    
+        
     var spaceButton: some View {
         SpecialKey(label: inputState.candidates.isEmpty ? "空格" : "选定", action: {
             nextState(.tapAnyKey)
@@ -360,7 +381,7 @@ struct QwertyView: View {
             VStack(spacing: 0) {
                 RowView(keys: rows[0], keyAction: tapKey)
                 RowView(keys: rows[1], keyAction: tapKey)
-                    .frame(width: geo.size.width * ([.number, .symbol].contains(qwertyState) ? 1 : 0.9))
+                    .frame(width: geo.size.width * (numberOrSymbol ? 1 : 0.9))
                 HStack {
                     SpecialKey(label: shiftContent, action: {nextState(.tapShift)})
                     RowView(keys: rows[2], keyAction: tapKey)
@@ -372,7 +393,8 @@ struct QwertyView: View {
                 }
                 HStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        SpecialKey(label: numContent, action: {nextState(.tapNum)})
+                        SpecialKey(label: numberOrSymbol ? "拼音" : "123",
+                                   action: {nextState(.tapNum)})
                         if inputState.needsInputModeSwitchKey {
                             NextKeyboardButton(setup: setupNext)
                                 .padding(ToneBoardStyle.keyPadding)
@@ -381,7 +403,9 @@ struct QwertyView: View {
                         }
                     }.frame(width: geo.size.width * 0.25)
                     Group{
-                        if (qwertyState == .normal) {
+                        if qwertyState == .normal && inputState.compact {
+                            RowView(keys: "12345", keyAction: toneAction)
+                        } else if qwertyState == .normal {
                             RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
                                            ("5", "5")], keyAction: toneAction)
                         } else {
@@ -532,6 +556,7 @@ struct KeyboardView_Previews: PreviewProvider {
 //        let orientation = InterfaceOrientation.landscapeLeft
         let orientation = InterfaceOrientation.portrait
         let state = InputState()
+        state.compact = true
         state.candidates = ["不", "部", "步", "布"]
         return ZStack {
             Rectangle().fill(.gray).opacity(0.5).frame(width:UIScreen.main.bounds.width, height: 300)
@@ -540,9 +565,8 @@ struct KeyboardView_Previews: PreviewProvider {
                                     .previewInterfaceOrientation(orientation)
                                     .previewDevice("iPhone 8")
                                     .environmentObject(state)
-                                    .frame(height: 285)
+                                    .frame(height: 205)
 //                                    .preferredColorScheme(.dark)
-            
             }
         }
 }

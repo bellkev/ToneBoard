@@ -83,7 +83,7 @@ struct TutorialTextFieldView: UIViewRepresentable {
         textField.leftView = paddingView
         textField.leftViewMode = .always
         textField.placeholder = "Type here..."
-        textField.font = ToneBoardStyle.uiFont.withSize(25)
+        textField.font = ToneBoardStyle.keyFont.withSize(25)
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.label.cgColor
         textField.layer.cornerRadius = 10

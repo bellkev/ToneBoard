@@ -15,6 +15,7 @@ class InputState: ObservableObject {
     @Published var needsInputModeSwitchKey = false
     @Published var rawInput = ""
     @Published var candidates: [String] = []
+    @Published var compact = false
     
 }
 
@@ -67,6 +68,7 @@ class SharedKeyboardViewController: UIInputViewController {
         uhc.view.rightAnchor.constraint(equalTo: outer.rightAnchor).isActive = true
         heightConstraint = uhc.view.heightAnchor.constraint(equalToConstant: 0)
         updateHeightConstraint()
+        updateCompactness()
         heightConstraint!.isActive = true
     }
     
@@ -89,6 +91,7 @@ class SharedKeyboardViewController: UIInputViewController {
         // Note that some apps like Safari seem to replace the keyboard instance on rotation
         // while others like Notes do not.
         updateHeightConstraint()
+        updateCompactness()
     }
     
     override func didReceiveMemoryWarning() {
@@ -99,7 +102,7 @@ class SharedKeyboardViewController: UIInputViewController {
     func updateHeightConstraint() {
         var constant = min(CGFloat(288), UIScreen.main.bounds.height * 0.45)
         if traitCollection.verticalSizeClass == .compact {
-            constant = 230
+            constant = 205
         }
         heightConstraint!.constant = constant
     }
@@ -110,6 +113,14 @@ class SharedKeyboardViewController: UIInputViewController {
             constant = 0
         }
         bottomConstraint!.constant = constant
+    }
+    
+    func updateCompactness() {
+        if traitCollection.verticalSizeClass == .compact {
+            self.inputState.compact = true
+        } else {
+            self.inputState.compact = false
+        }
     }
     
     func updateMarked(_ raw: String) {

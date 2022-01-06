@@ -34,11 +34,9 @@ class ToneBoardTests: XCTestCase {
         assert(candidates == ["东西南"])
     }
     
-    func testMultipleReulsts() throws {
+    func testMultipleResults() throws {
         let dict = SQLiteCandidateDict()
         let candidates = dict.candidates(["wo3"])
         assert(candidates == ["我", "婐"])
-
     }
-
 }
