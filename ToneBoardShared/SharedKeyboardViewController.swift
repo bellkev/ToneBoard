@@ -70,6 +70,10 @@ class SharedKeyboardViewController: UIInputViewController {
         updateHeightConstraint()
         updateCompactness()
         heightConstraint!.isActive = true
+        
+        // Uncomment to access settings
+//        let defaults = UserDefaults(suiteName: "group.com.bellkev.ToneBoard")!
+        
     }
     
     override func viewWillLayoutSubviews() {

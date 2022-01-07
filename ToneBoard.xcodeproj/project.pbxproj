@@ -12,6 +12,7 @@
 		0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CB276EA71800E192FF /* TutorialView.swift */; };
 		0A1560CE276EA79900E192FF /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CD276EA79900E192FF /* Components.swift */; };
 		0A1560D0276EACA400E192FF /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CF276EACA400E192FF /* HelpView.swift */; };
+		0A24AAAD2787652500C8C82B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0A24AAAC2787652500C8C82B /* Settings.bundle */; };
 		0A46C18627601E0F0079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A46C18727601E0F0079EF13 /* ToneBoardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */; };
 		0A46C18F27601EAF0079EF13 /* ToneBoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C18E27601EAF0079EF13 /* ToneBoardTests.swift */; };
@@ -76,6 +77,9 @@
 		0A1560CB276EA71800E192FF /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		0A1560CD276EA79900E192FF /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		0A1560CF276EACA400E192FF /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		0A24AAAC2787652500C8C82B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = Settings.bundle; path = ToneBoardShared/Settings.bundle; sourceTree = "<group>"; };
+		0A24AAB027878DD100C8C82B /* ToneBoard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ToneBoard.entitlements; sourceTree = "<group>"; };
+		0A24AAB12787902700C8C82B /* ToneBoardExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ToneBoardExtension.entitlements; sourceTree = "<group>"; };
 		0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneBoardInput.swift; sourceTree = "<group>"; };
 		0A46C18C27601EAF0079EF13 /* ToneBoardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToneBoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A46C18E27601EAF0079EF13 /* ToneBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneBoardTests.swift; sourceTree = "<group>"; };
@@ -132,6 +136,7 @@
 		0A60D55C275C865500FFAD22 = {
 			isa = PBXGroup;
 			children = (
+				0A24AAAC2787652500C8C82B /* Settings.bundle */,
 				0A8407252772B2A200A5C047 /* dict.sqlite3 */,
 				0A60D60A275D80B900FFAD22 /* ToneBoardShared */,
 				0A60D567275C865500FFAD22 /* ToneBoard */,
@@ -155,6 +160,7 @@
 		0A60D567275C865500FFAD22 /* ToneBoard */ = {
 			isa = PBXGroup;
 			children = (
+				0A24AAB027878DD100C8C82B /* ToneBoard.entitlements */,
 				0A60D56C275C865700FFAD22 /* Assets.xcassets */,
 				0A0BCE822773C0AB00AE2A85 /* LaunchScreen.storyboard */,
 				0A1560CD276EA79900E192FF /* Components.swift */,
@@ -180,6 +186,7 @@
 		0A60D57B275C880200FFAD22 /* ToneBoardExtension */ = {
 			isa = PBXGroup;
 			children = (
+				0A24AAB12787902700C8C82B /* ToneBoardExtension.entitlements */,
 				0A60D57C275C880200FFAD22 /* KeyboardViewController.swift */,
 				0A60D57E275C880200FFAD22 /* Info.plist */,
 			);
@@ -327,6 +334,7 @@
 			files = (
 				0A60D570275C865700FFAD22 /* Preview Assets.xcassets in Resources */,
 				0A0BCE832773C0AB00AE2A85 /* LaunchScreen.storyboard in Resources */,
+				0A24AAAD2787652500C8C82B /* Settings.bundle in Resources */,
 				0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */,
 				0A8407262772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
@@ -574,6 +582,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = ToneBoard/ToneBoard.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneBoard/Preview Content\"";
@@ -607,6 +616,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = ToneBoard/ToneBoard.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneBoard/Preview Content\"";
@@ -636,6 +646,7 @@
 		0A60D583275C880200FFAD22 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ToneBoardExtension/ToneBoardExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDQQ8DU784;
@@ -661,6 +672,7 @@
 		0A60D584275C880200FFAD22 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ToneBoardExtension/ToneBoardExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDQQ8DU784;
