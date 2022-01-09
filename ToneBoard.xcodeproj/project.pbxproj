@@ -20,6 +20,9 @@
 		0A46C1A52760628A0079EF13 /* CandidateDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C1A42760628A0079EF13 /* CandidateDict.swift */; };
 		0A46C1A62760628A0079EF13 /* CandidateDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C1A42760628A0079EF13 /* CandidateDict.swift */; };
 		0A46C1A72760628A0079EF13 /* CandidateDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A46C1A42760628A0079EF13 /* CandidateDict.swift */; };
+		0A5B25192788C6C400E7A7D6 /* Popup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5B25182788C6C400E7A7D6 /* Popup.swift */; };
+		0A5B251A2788C6C400E7A7D6 /* Popup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5B25182788C6C400E7A7D6 /* Popup.swift */; };
+		0A5B251B2788C6C400E7A7D6 /* Popup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5B25182788C6C400E7A7D6 /* Popup.swift */; };
 		0A60D569275C865500FFAD22 /* ToneBoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D568275C865500FFAD22 /* ToneBoardApp.swift */; };
 		0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D56A275C865500FFAD22 /* ContentView.swift */; };
 		0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A60D56C275C865700FFAD22 /* Assets.xcassets */; };
@@ -84,6 +87,7 @@
 		0A46C18C27601EAF0079EF13 /* ToneBoardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToneBoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A46C18E27601EAF0079EF13 /* ToneBoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneBoardTests.swift; sourceTree = "<group>"; };
 		0A46C1A42760628A0079EF13 /* CandidateDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandidateDict.swift; sourceTree = "<group>"; };
+		0A5B25182788C6C400E7A7D6 /* Popup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Popup.swift; sourceTree = "<group>"; };
 		0A60D565275C865500FFAD22 /* ToneBoard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToneBoard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A60D568275C865500FFAD22 /* ToneBoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneBoardApp.swift; sourceTree = "<group>"; };
 		0A60D56A275C865500FFAD22 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -197,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */,
+				0A5B25182788C6C400E7A7D6 /* Popup.swift */,
 				0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */,
 				0A46C1A42760628A0079EF13 /* CandidateDict.swift */,
 				0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */,
@@ -355,6 +360,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A5B251B2788C6C400E7A7D6 /* Popup.swift in Sources */,
 				0AA6A739276EF5F80043916D /* KeyboardView.swift in Sources */,
 				0A63DB25276AB130002242BB /* SharedKeyboardViewController.swift in Sources */,
 				0A46C1A3276061650079EF13 /* ToneBoardInput.swift in Sources */,
@@ -373,6 +379,7 @@
 				0A60D60C275D80CA00FFAD22 /* KeyboardView.swift in Sources */,
 				0A1560D0276EACA400E192FF /* HelpView.swift in Sources */,
 				0A46C1A52760628A0079EF13 /* CandidateDict.swift in Sources */,
+				0A5B25192788C6C400E7A7D6 /* Popup.swift in Sources */,
 				0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */,
 				0A46C18627601E0F0079EF13 /* ToneBoardInput.swift in Sources */,
 				0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */,
@@ -385,6 +392,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A5B251A2788C6C400E7A7D6 /* Popup.swift in Sources */,
 				0A60D57D275C880200FFAD22 /* KeyboardViewController.swift in Sources */,
 				0A60D60D275D80CA00FFAD22 /* KeyboardView.swift in Sources */,
 				0A46C18727601E0F0079EF13 /* ToneBoardInput.swift in Sources */,

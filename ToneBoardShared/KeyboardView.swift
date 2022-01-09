@@ -59,7 +59,7 @@ struct CandidateView: View {
     }
     
     var verticalPadding: CGFloat {
-        inputState.compact ? 2 : 6
+        inputState.compact ? 5 : 8.5
     }
     
     var body: some View {
@@ -120,14 +120,9 @@ struct NextKeyboardButton: UIViewRepresentable {
 
 struct KeyContent: View {
     let label: String
-    let action: () -> Void
+    let color: Color
     var small = false
-    var popUp = false
-        
-    @GestureState var isTapped = false
-    @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var inputState: InputState
-    
+            
     // Hardcoding this for now, should approximate half the width of full-width
     // glyph in a character used on a key
     let halfWidth = CGFloat(7)
@@ -140,23 +135,6 @@ struct KeyContent: View {
            return halfWidth
         }
         return 0
-    }
-    
-    
-    var color: Color {
-        if isTapped && !popUp && colorScheme == .dark {
-            return ToneBoardStyle.specialKeyColorTappedDark
-        } else if !popUp && colorScheme == .dark {
-            return ToneBoardStyle.specialKeyColorDark
-        } else if colorScheme == .dark {
-            return ToneBoardStyle.keyColorDark
-        } else if isTapped && !popUp {
-            return ToneBoardStyle.specialKeyColorTapped
-        } else if !popUp {
-            return ToneBoardStyle.specialKeyColor
-        } else {
-            return ToneBoardStyle.keyColor
-        }
     }
     
     var scalar: UnicodeScalar {
@@ -184,11 +162,6 @@ struct KeyContent: View {
         }
     }
     
-    var isPoppedUp: Bool {
-        popUp && isTapped
-    }
-
-    
     var body: some View {
         Group {
             if label.starts(with: "SF:") {
@@ -208,10 +181,28 @@ struct KeyContent: View {
         .background(color)
         .cornerRadius(ToneBoardStyle.keyCornerRadius)
         .padding(ToneBoardStyle.keyPadding)
-        // There seems to be a bug preventing contentShape from working normally in a custom keyboard
-        // it works for the in-app version of the keyboard but not in the systemwide mode.
+        // There seems to be a bug preventing contentShape from working normally in a custom keyboard.
+        // It works for the in-app version of the keyboard but not in the systemwide mode.
         // Falling back on the not-quite-transparent hack to make the space around keys tappable.
         .background(.black.opacity(0.001))
+    }
+
+}
+
+
+struct Key<Content: View>: View {
+    
+    let action: () -> Void
+    let content: (Bool) -> Content
+    @GestureState var isTapped = false
+    
+    init(action: @escaping () -> Void, content: @escaping (Bool) -> Content) {
+        self.action = action
+        self.content = content
+    }
+    
+    var body: some View {
+        content(isTapped)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .updating($isTapped) { _, state, _ in
@@ -220,25 +211,51 @@ struct KeyContent: View {
                 .onEnded { _ in
                     action()
                 })
-        // It's surprisingly hard to compose these modifiers conditionally with if/else,
-        // as any branching results in a ConditionalContent view that does not have a single
-        // consistent identity for the tap/release gesture
-        .scaleEffect(isPoppedUp ? 1.4 : 1)
-        .offset(x:0, y: isPoppedUp ? -50 : 0)
-        .shadow(color: .black.opacity(isPoppedUp ? 1 : 0), radius: 1)
-        .zIndex(isPoppedUp ? 1 : 0)
     }
-
 }
-
 
 struct StandardKey: View {
     let label: String
     let action: () -> Void
+    var small = false
+    
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var inputState: InputState
+    
+    var color: Color {
+        colorScheme == .dark ? ToneBoardStyle.keyColorDark : ToneBoardStyle.keyColor
+    }
+
         
     var body: some View {
-        KeyContent(label: label, action: action, popUp: true)
+        Key(action: action) { isTapped in
+            GeometryReader { geo in
+                ZStack {
+                    KeyContent(label: label, color: color, small: small)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                    if isTapped {
+                        ZStack(alignment: .top) {
+                            Popup(innerWidth: geo.size.width - ToneBoardStyle.keyPadding.leading * 2,
+                                              topRadius: 8, bottomRadius: ToneBoardStyle.keyCornerRadius)
+                                .fill(color)
+                                .frame(width: geo.size.width * 1.5,
+                                       height: geo.size.height * 2 + (inputState.compact ? 8 : 0))
+                            KeyContent(label: label, color: .clear)
+                                .scaleEffect(1.5)
+                                .frame(height: geo.size.height)
+                        }
+                        .offset(x: 0, y: -ToneBoardStyle.keyPadding.bottom)
+                        // Avoid the label casting a shadow onto the overlay shape
+                        .compositingGroup()
+                        .shadow(color: .black, radius: 1)
 
+                    }
+                }
+                // Just accept the size proposed by parent, do not expand to contain the overlay
+                .frame(minWidth: 0, minHeight: 0, alignment: .bottom)
+            }
+       
+        }
     }
 }
 
@@ -246,9 +263,25 @@ struct StandardKey: View {
 struct SpecialKey: View {
     let label: String
     let action: () -> Void
+    
+    @Environment(\.colorScheme) var colorScheme
+    
+    func color(_ isTapped: Bool) -> Color {
+        if colorScheme == .dark && isTapped {
+            return ToneBoardStyle.specialKeyColorTappedDark
+        } else if colorScheme == .dark {
+            return ToneBoardStyle.specialKeyColorDark
+        } else if isTapped {
+            return ToneBoardStyle.specialKeyColorTapped
+        } else {
+            return ToneBoardStyle.specialKeyColor
+        }
+    }
         
     var body: some View {
-        KeyContent(label: label, action: action, small: true)
+        Key(action: action) { isTapped in
+            KeyContent(label: label, color: color(isTapped), small: true)
+        }
     }
 }
 
@@ -257,21 +290,24 @@ struct RowView: View {
     
     let keys: [(String, String)]
     let keyAction: (String) -> Void
+    let small: Bool
     
-    init(keys: String, keyAction: @escaping (String) -> Void) {
+    init(keys: String, keyAction: @escaping (String) -> Void, small: Bool = false) {
         self.keyAction = keyAction
         self.keys = keys.map {(String($0), String($0))}
+        self.small = small
     }
     
-    init(keys: [(String, String)], keyAction: @escaping (String) -> Void) {
+    init(keys: [(String, String)], keyAction: @escaping (String) -> Void, small: Bool = false) {
         self.keyAction = keyAction
         self.keys = keys
+        self.small = small
     }
     
     var body: some View {
         HStack(spacing: 0){
             ForEach(keys, id: \.0) { k in
-                StandardKey(label: k.0, action: {keyAction(k.1)})
+                StandardKey(label: k.0, action: {keyAction(k.1)}, small: small)
             }
         }
     }
@@ -403,11 +439,9 @@ struct QwertyView: View {
                         }
                     }.frame(width: geo.size.width * 0.25)
                     Group{
-                        if qwertyState == .normal && inputState.compact {
-                            RowView(keys: "12345", keyAction: toneAction)
-                        } else if qwertyState == .normal {
-                            RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"),
-                                           ("5", "5")], keyAction: toneAction)
+                        if qwertyState == .normal {
+                            RowView(keys: [("1̄", "1"), ("2́", "2"), ("3̌", "3"), ("4̀", "4"), ("5", "5")],
+                                    keyAction: toneAction, small: inputState.compact)
                         } else {
                             spaceButton
                         }
@@ -556,7 +590,7 @@ struct KeyboardView_Previews: PreviewProvider {
 //        let orientation = InterfaceOrientation.landscapeLeft
         let orientation = InterfaceOrientation.portrait
         let state = InputState()
-        state.compact = true
+//        state.compact = true
         state.candidates = ["不", "部", "步", "布"]
         return ZStack {
             Rectangle().fill(.gray).opacity(0.5).frame(width:UIScreen.main.bounds.width, height: 300)
@@ -565,7 +599,7 @@ struct KeyboardView_Previews: PreviewProvider {
                                     .previewInterfaceOrientation(orientation)
                                     .previewDevice("iPhone 8")
                                     .environmentObject(state)
-                                    .frame(height: 205)
+                                    .frame(height: 288)
 //                                    .preferredColorScheme(.dark)
             }
         }
