@@ -76,7 +76,8 @@ def save_sqlite(d, path):
 
 
 if __name__ == '__main__':
-    one_grams = load_one_grams('tmp/1grams.txt')
-    cc = load_cc_cedict('tmp/cc_cedict.txt')
+    import sys
+    one_grams = load_one_grams(sys.argv[1])
+    cc = load_cc_cedict(sys.argv[2])
     d = candidate_dict(cc, one_grams)
-    save_sqlite(d, 'dict.sqlite3')
+    save_sqlite(d, sys.argv[3])

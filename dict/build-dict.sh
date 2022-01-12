@@ -12,11 +12,12 @@ download() {
   gunzip "$2.gz"
 }
 
-mkdir -p tmp
+TMP_DIR="dict/tmp"
+mkdir -p "$TMP_DIR"
 
 echo "Downloading ngram data..."
-download "$NGRAM_URL" "tmp/1grams.txt"
+download "$NGRAM_URL" "$TMP_DIR/1grams.txt"
 echo "Downloading CC-CEDICT..."
-download "$CC_CEDICT_URL" "tmp/cc_cedict.txt"
+download "$CC_CEDICT_URL" "$TMP_DIR/cc_cedict.txt"
 echo "Building dictionary..."
-python build_dict.py
+python dict/build_dict.py "$TMP_DIR/1grams.txt" "$TMP_DIR/cc_cedict.txt" "app/dict.sqlite3"
