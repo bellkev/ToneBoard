@@ -33,7 +33,7 @@ def load_cc_cedict(path):
 
 def candidate_dict(cc_data, ngram_data):
     reading_entries = defaultdict(set)
-    regex = re.compile('(?:[a-z]+[1-5]\s?)+')
+    regex = re.compile(r'(?:[a-z]+[1-5]\s?)+')
     for traditional, simplified, reading in cc_data:
         norm_reading = reading.lower().replace('u:', 'v')
         is_well_formed = regex.fullmatch(norm_reading)
