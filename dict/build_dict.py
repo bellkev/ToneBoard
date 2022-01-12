@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import json
 import os
 import re
@@ -31,21 +31,38 @@ def load_cc_cedict(path):
     return ret
 
 
-def candidate_dict(cc_data, ngram_data):
-    reading_entries = defaultdict(set)
-    regex = re.compile(r'(?:[a-z]+[1-5]\s?)+')
+Word = namedtuple('Word', ['trad', 'simp', 'reading', 'freq'])
+
+
+def cc_words(cc_data):
+    words = []
     for traditional, simplified, reading in cc_data:
+        # TODO: Test for norm_reading
         norm_reading = reading.lower().replace('u:', 'v')
-        is_well_formed = regex.fullmatch(norm_reading)
+        words.append(Word(traditional, simplified, norm_reading, 0))
+    return words
+
+
+def filter_fn():
+    regex = re.compile(r'(?:[a-z]+[1-5]\s?)+')
+    def f(word):
+        is_well_formed = regex.fullmatch(word.reading)
         # Rough check that these are all CJK chars
         # See http://www.unicode.org/Public/UNIDATA/Blocks.txt
-        is_cjk_chars = all(ord(char) >= 0x3400 for char in simplified)
-        is_short = len(simplified) <= 4
-        if is_well_formed and is_cjk_chars and is_short:
-            reading_segments = norm_reading.split(' ')
-            # Add each subword as well as the word itself
-            for i in range(1, len(simplified) + 1):
-                reading_entries[' '.join(reading_segments[0:i])].add(simplified[0:i])
+        is_cjk_chars = all(ord(char) >= 0x3400 for char in word.simp)
+        is_short = len(word.simp) <= 4
+        return is_well_formed and is_cjk_chars and is_short
+    return f
+
+
+def candidate_dict(cc_data, ngram_data):
+    reading_entries = defaultdict(set)
+    f = filter_fn()
+    for word in filter(f, cc_words(cc_data)):
+        reading_segments = word.reading.split(' ')
+        # Add each subword as well as the word itself
+        for i in range(1, len(word.simp) + 1):
+            reading_entries[' '.join(reading_segments[0:i])].add(word.simp[0:i])
     return {k: sorted(v, key=lambda x: ngram_data.get(x, 0), reverse=True)
             for k,v in reading_entries.items()}
 
