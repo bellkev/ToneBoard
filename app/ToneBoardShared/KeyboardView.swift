@@ -77,19 +77,25 @@ struct CandidateView: View {
 
 struct CandidatesView: View {
     
+    @Namespace var candidateID
     @EnvironmentObject var inputState: InputState
     let selectCandidate: (String) -> Void
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 5) {
-                if inputState.candidates.isEmpty {
-                    CandidateView(candidate: " ", action: {}).opacity(0)
-                }
-                ForEach(0..<inputState.candidates.count, id: \.self) { c in
-                    CandidateView(candidate: inputState.candidates[c],
-                                  action: {selectCandidate(inputState.candidates[c])},
-                                  highlight: c == 0)
+            ScrollViewReader { proxy in
+                HStack(spacing: 5) {
+                    if inputState.candidates.isEmpty {
+                        CandidateView(candidate: " ", action: {}).opacity(0)
+                    }
+                    ForEach(0..<inputState.candidates.count, id: \.self) { c in
+                        CandidateView(candidate: inputState.candidates[c],
+                                      action: {selectCandidate(inputState.candidates[c])},
+                                      highlight: c == 0)
+                    }
+                }.id(candidateID)
+                .onChange(of: inputState.candidates) { _ in
+                    proxy.scrollTo(candidateID, anchor: .leading)
                 }
             }
         }

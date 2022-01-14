@@ -152,6 +152,7 @@ struct Card: View {
     let index: Int
     let padding: CGFloat
     
+    @Namespace var cardID
     @Binding var isDone: Bool
     @EnvironmentObject var textFieldState: TextFieldState
     @Binding var currentStep: Int
@@ -188,9 +189,9 @@ struct Card: View {
                                 .opacity(substep == currentSubstep ? 1 : 0)
                                 .animation(.easeInOut(duration: 1), value: currentSubstep)
                         }
-                    }.id(1)
+                    }.id(cardID)
                     .onChange(of: currentSubstep) { _ in
-                        proxy.scrollTo(1, anchor: .top)
+                        proxy.scrollTo(cardID, anchor: .top)
                     }
                 }
             }
