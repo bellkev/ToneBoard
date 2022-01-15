@@ -371,7 +371,7 @@ struct QwertyView: View {
         switch (qwertyState, e) {
         case (.normal, .tapShift): qwertyState = .justShift
             Task {
-                await Task.sleep(NSEC_PER_SEC / 2)
+                try await Task.sleep(nanoseconds: NSEC_PER_SEC / 2)
                 nextState(.shiftDelay)
             }
         case (.normal, .tapNum): qwertyState = .number

@@ -70,7 +70,6 @@ struct TutorialTextFieldView: UIViewRepresentable {
         }
         
         @objc func textFieldDidChange(_ field: TutorialTextField) {
-            let raw = field.controller?.inputState.rawInput ?? ""
             parent.state.text = field.text ?? ""
             parent.state.rawInput = field.controller?.inputState.rawInput ?? ""
         }
@@ -266,22 +265,19 @@ struct Carousel: View {
         bounceTask?.cancel()
     }
     
-    func bounce() async {
+    func bounce() async throws {
         bouncing = true
-        try? await Task.sleep(nanoseconds: 250000000)
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 4)
         bouncing = false
-        try? await Task.sleep(nanoseconds: 250000000)
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 4)
     }
     
     func startBouncing() {
         bounceTask = Task {
             while true {
-                try? await Task.sleep(nanoseconds: 2000000000)
-                await bounce()
-                await bounce()
-                if Task.isCancelled {
-                    return
-                }
+                try await Task.sleep(nanoseconds: NSEC_PER_SEC * 2)
+                try await bounce()
+                try await bounce()
             }
         }
     }
