@@ -27,7 +27,7 @@ struct Home: View {
                 BigButton("About")
             }
             Spacer()
-            (Text("You can try ToneBoard with a quick tutorial in this app by selecting **Try Now**, or select **Install** to use it systemwide."))
+            (Text("You can try ToneBoard with a quick tutorial in this app by selecting **Try Now**, or select **Install Keyboard** to use it systemwide."))
                 .multilineTextAlignment(.center)
                 .font(.system(size: 20))
                 .padding()
