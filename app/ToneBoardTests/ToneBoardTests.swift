@@ -30,25 +30,27 @@ class ToneBoardTests: XCTestCase {
     func testDict() throws {
         let dict = SQLiteCandidateDict()
         let candidates = dict.candidates(["fei1", "chang2"])
-        assert(candidates == ["非常"])
-    }
-    
-    func testLoadDict() throws {
-        let dict = SQLiteCandidateDict()
-        let candidates = dict.candidates(["fei1", "chang2"])
-        assert(candidates == ["非常"])
+        assert(candidates.map {$0.char} == ["非常"])
     }
     
     func testSubWords() throws {
         let dict = SQLiteCandidateDict()
         let candidates = dict.candidates(["dong1", "xi1", "nan2"])
-        assert(candidates == ["东西南"])
+        assert(candidates.map {$0.char} == ["东西南"])
     }
     
     func testMultipleResults() throws {
         let dict = SQLiteCandidateDict()
         let candidates = dict.candidates(["wo3"])
-        assert(candidates == ["我", "婐"])
+        assert(candidates.map {$0.char} == ["我", "婐"])
+    }
+    
+    func testRareTones() throws {
+        let dict = SQLiteCandidateDict()
+        let formatCandidate = {(c: Candidate) in c.char + (c.rareTone ? "*" : "")}
+        let formatCandidates = {(cs: [Candidate]) in cs.map(formatCandidate)}
+        assert(formatCandidates(dict.candidates(["ma3"])).contains("吗*"))
+        assert(!formatCandidates(dict.candidates(["ma5"])).contains("吗*"))
     }
     
     func testDictPerf() throws {

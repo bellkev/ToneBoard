@@ -14,7 +14,7 @@ class InputState: ObservableObject {
     
     @Published var needsInputModeSwitchKey = false
     @Published var rawInput = ""
-    @Published var candidates: [String] = []
+    @Published var candidates: [Candidate] = []
     @Published var compact = false
     
 }

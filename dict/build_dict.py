@@ -8,6 +8,9 @@ import sqlite3
 import unicodedata as ud
 
 
+COMMON_TONE_THRESHOLD=0.75
+
+
 def extract_tone(s):
     unicode_tone = {
     '\u0304': 1,
@@ -29,22 +32,28 @@ def extract_tone(s):
     return tone, rest
 
 
-def norm_pinyin(s):
+def standardize_pinyin(s):
     tone, rest = extract_tone(s)
     return rest.replace('ü', 'v') + str(tone)
 
 
+def normalize_number_values(d):
+    '''Normalize the values in a key:number dict so that they add to 1'''
+    total = sum(d.values())
+    for k in d.keys():
+        d[k] /= total
+
+
 def load_unihan(path):
-    ret = defaultdict(dict)
+    ret = {}
     with open(path) as f:
         chars = json.load(f)
         for char_data in chars:
             char = char_data['char']
             pinlu = char_data['kHanyuPinlu']
-            reading_freqs = [(norm_pinyin(reading['phonetic']), reading['frequency']) for reading in pinlu]
-            total_freq = sum(rf[1] for rf in reading_freqs)
-            for rf in reading_freqs:
-                ret[char][rf[0]] = rf[1] / total_freq
+            reading_freqs = {standardize_pinyin(reading['phonetic']): reading['frequency'] for reading in pinlu}
+            normalize_number_values(reading_freqs)
+            ret[char] = reading_freqs
     return ret
 
 
@@ -73,7 +82,7 @@ def load_cc_cedict(path):
             yield match.groups()
 
 
-Word = namedtuple('Word', ['trad', 'simp', 'reading', 'freq'], defaults=[0])
+Word = namedtuple('Word', ['trad', 'simp', 'reading', 'freq', 'rare_tone'], defaults=[0, False])
 
 
 def cc_words(cc_data):
@@ -99,11 +108,22 @@ def add_freqs(ngram_data, words):
     return (word._replace(freq=ngram_data.get(word.simp, 0)) for word in words)
 
 
+def is_rare_tone(reading, reading_freqs):
+    toneless = lambda x: x[:-1]
+    similar_reading_freqs = {k: v for (k, v) in reading_freqs.items() if toneless(reading) == toneless(k)}
+    normalize_number_values(similar_reading_freqs)
+    exists_common = any(val >= COMMON_TONE_THRESHOLD for val in similar_reading_freqs.values())
+    is_common = similar_reading_freqs.get(reading, 0) >= COMMON_TONE_THRESHOLD
+    return exists_common and not is_common
+
+
 def scale_char_freqs(unihan_data, words):
     for word in words:
-        if word.freq and word.simp in unihan_data:
-            multiplier = unihan_data[word.simp].get(word.reading, 0)
-            yield word._replace(freq=word.freq * multiplier)
+        if word.simp in unihan_data:
+            reading_stats = unihan_data[word.simp]
+            multiplier = reading_stats.get(word.reading, 0)
+            is_rare = is_rare_tone(word.reading, reading_stats)
+            yield word._replace(freq=word.freq * multiplier, rare_tone=is_rare)
         else:
             yield word
 
@@ -152,10 +172,11 @@ def create_sqlite(conn, data):
     cursor.execute("""CREATE TABLE IF NOT EXISTS reading_char(
                           reading TEXT,
                           char TEXT,
-                          frequency REAL);""")
+                          frequency REAL,
+                          rare_tone INTEGER);""")
     cursor.execute("CREATE INDEX reading_char_reading ON reading_char(reading);")
-    rows = [(w.reading, w.simp, w.freq) for w in data]
-    cursor.executemany("INSERT INTO reading_char VALUES (?, ?, ?)", rows)
+    rows = [word._asdict() for word in data]
+    cursor.executemany("INSERT INTO reading_char VALUES (:reading, :simp, :freq, :rare_tone)", rows)
     conn.commit()
 
 

@@ -39,7 +39,7 @@ struct ToneBoardStyle {
 
 
 struct CandidateView: View {
-    let candidate: String
+    let candidate: Candidate
     let action: () -> Void
     var highlight = false
     
@@ -64,7 +64,7 @@ struct CandidateView: View {
     
     var body: some View {
         Button(action: action) {
-            Text(candidate)
+            Text(candidate.char + (candidate.rareTone ? "*" : ""))
                 .font(Font(ToneBoardStyle.candidateFont))
                 .foregroundColor(Color(UIColor.label))
                 .padding(EdgeInsets(top: verticalPadding, leading: 12, bottom: verticalPadding, trailing: 12))
@@ -79,14 +79,14 @@ struct CandidatesView: View {
     
     @Namespace var candidateID
     @EnvironmentObject var inputState: InputState
-    let selectCandidate: (String) -> Void
+    let selectCandidate: (Candidate) -> Void
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             ScrollViewReader { proxy in
                 HStack(spacing: 5) {
                     if inputState.candidates.isEmpty {
-                        CandidateView(candidate: " ", action: {}).opacity(0)
+                        CandidateView(candidate: Candidate(char: " "), action: {}).opacity(0)
                     }
                     ForEach(0..<inputState.candidates.count, id: \.self) { c in
                         CandidateView(candidate: inputState.candidates[c],
@@ -508,8 +508,8 @@ struct KeyboardView: View {
         inputState.rawInput = ""
     }
     
-    func selectCandidate(_ candidate: String) {
-        proxy.insertText(candidate)
+    func selectCandidate(_ candidate: Candidate) {
+        proxy.insertText(candidate.char)
         inputState.rawInput = ""
     }
     
@@ -597,7 +597,7 @@ struct KeyboardView_Previews: PreviewProvider {
         let orientation = InterfaceOrientation.portrait
         let state = InputState()
 //        state.compact = true
-        state.candidates = ["不", "部", "步", "布"]
+        state.candidates = ["不", "部", "步", "布"].map {Candidate(char: $0)}
         return ZStack {
             Rectangle().fill(.gray).opacity(0.5).frame(width:UIScreen.main.bounds.width, height: 300)
 //            Rectangle().fill(.white.opacity(0.5)).frame(width:200, height: 300).offset(x:100, y: 0)

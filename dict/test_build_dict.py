@@ -6,7 +6,11 @@ import build_dict as bd
 UNIHAN_DATA={
     '吃': {'chi1': 1.0},
     '离': {'li2': 1.0},
-    '还': {'hai2': 0.98, 'huan2': 0.02}
+    '还': {'hai2': 0.98, 'huan2': 0.02},
+    '为': {'wei4': 0.6, 'wei2': 0.4},
+    '哪': {'na3': 0.81, 'na5': 0.19},
+    '吗': {'ma5': 0.94, 'ma2': 0.06},
+
 }
 
 ONE_GRAMS={
@@ -43,6 +47,12 @@ CC=[
     ('還', '还', 'huan2'),
     ('還', '还', 'hai2'),
     ('環', '环', 'huan2'),
+    ('哪', '哪', 'na3'),
+    ('哪', '哪', 'na5'),
+    ('嗎', '吗', 'ma5'),
+    ('嗎', '吗', 'ma3'),
+    ('為', '为', 'wei2'),
+    ('為', '为', 'wei4'),
 ]
 
 
@@ -50,12 +60,17 @@ class MemoryDB:
 
     def __init__(self):
         self.conn = sqlite3.connect(":memory:")
+        self.conn.row_factory = sqlite3.Row
         bd.create_sqlite(self.conn, bd.candidate_dict_data(CC, ONE_GRAMS, UNIHAN_DATA))
 
-    def query(self, reading):
+    def query_all(self, reading):
         cur = self.conn.cursor()
-        cur.execute("SELECT char FROM reading_char WHERE reading = ? ORDER BY frequency DESC", (reading,))
-        return [row[0] for row in cur.fetchall()]
+        cur.execute("SELECT * FROM reading_char WHERE reading = ? ORDER BY frequency DESC", (reading,))
+        return cur.fetchall()
+
+    def query(self, reading):
+        return [row['char'] for row in self.query_all(reading)]
+
 
 
 DB=MemoryDB()
@@ -103,3 +118,17 @@ def test_heteronym_freqs():
     assert candidates.index('吃') < candidates.index('离')
     candidates = DB.query('huan2')
     assert candidates.index('环') < candidates.index('还')
+
+
+def is_rare(char, reading):
+    candidates = DB.query_all(reading)
+    return [c for c in candidates if c['char'] == char][0]['rare_tone']
+
+def test_rare_tones():
+    # Flag candidates when there is an alternative tone that is much more common
+    assert is_rare('哪', 'na5')
+    assert not is_rare('哪', 'na3')
+    # Only flag tone-only differences
+    assert not is_rare('还', 'huan2')
+    # Don't flag tones as rare when there is no especially common tone
+    assert not is_rare('为', 'wei2')
