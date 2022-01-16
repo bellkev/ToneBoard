@@ -336,41 +336,39 @@ struct TutorialView: View {
                 Substep("Great! Now you can select from characters with the reading \"hao3\" above the keyboard, ordered by frequency. Try tapping on \"好\".", target: "好"),
                 Substep("Alright, you input your first character! Now swipe to the next step.")
              ]),
-        Step(title: "The Return Key",
-             substeps: [
-                Substep("The return key is normally labeled \"换行\" (_huànháng_, line feed), but if you input some characters, the label changes to \"确认\" (_quèrèn_, confirm), allowing you to directly input text. Try it by typing \"hello\".", target: "hello"),
-                Substep("Good. Notice the highlighting indicating that the word isn't fully entered yet. Now hit \"确认\".", target: "hello", rawTarget: ""),
-                Substep("Great! Notice that the highlighting disappears, indicating that the text is fully entered, and the \"确认\" key goes back to \"换行\".")
-             ]),
-        Step(title: "The Space Key", substeps: [
-            Substep("In ToneBoard, the tone buttons take the normal place of the space bar, but there is still a small space key available labeled \"空格\" (_kòng gé_, space). Try using it to type \"hello world\".", target: "hello world"),
-            Substep("Good job! (Note that some devices may replace the space key with a keyboard selection button, but you can always access a space key using the shift key.)")
-            ]),
-        Step(title: "Character Selection", substeps: [
-            Substep("The space key has one more function–when there are character choices displayed in the top bar, the space key's label changes to \"选定\" (_xuǎn dìng_, select) and lets you input the first character choice. Try typing \"wo3\" and using this key to select the first choice of \"我\".", target: "wo3"),
-            Substep("Good, now tap \"选定\" to input the character \"我\".", target: "我"),
-            Substep("Good work! Now you know how to use every key on the keyboard.")
-            ]),
         Step(title: "Words",
              substeps: [
-                Substep("Now try inputting a compound word. Try entering \"可爱\" (_kě ài_, cute) by typing \"ke3ai4\".", target: "ke3 ai4"),
+                Substep("Now try inputting a compound word. Try entering \"可爱\" (_kěài_, cute) by typing \"ke3ai4\".", target: "ke3 ai4"),
                 Substep("Good! Notice that the syllables \"ke3 ai4\" are displayed with a space between them for easier reading. Now select \"可爱\".", target: "可爱"),
                 Substep("Great! You input your first compound word.")
              ]),
         Step(title: "Sentences",
              substeps: [
-                Substep("ToneBoard does not try to make complete sentences for you, so you will need to input them one word at a time. Try inputting \"我喝水\" (_wǒ hē shuǐ_, or \"I drink water\"). First type \"wo3\".", target: "wo3"),
-                Substep("Good, now see what happens if you continue to type \"he1\".", target: "wo3 he1"),
-                Substep("Notice how there are no character choices for the input \"wo3he1\", because \"我喝\" is two words. Now try deleting \"he1\" and selecting the character \"我\".", target: "我"),
+                Substep("ToneBoard does not try to make complete sentences for you, so you will need to input them one word at a time. Try inputting \"我喝水\" (_wǒ hē shuǐ_, or \"I drink water\"). First type \"wo3\" and select \"我\".", target: "我"),
                 Substep("Good, now type \"he1\" and select \"喝\" (_hē_, drink).", target: "我喝"),
-                Substep("Alright! Now continue with \"shui3\" to input \"水\" (_shuǐ_, drink).", target: "我喝水"),
+                Substep("Alright! Now continue with \"shui3\" to input \"水\" (_shuǐ_, water).", target: "我喝水"),
                 Substep("Good! Now finish the sentence with a Chinese full stop \"。\", which you can find by tapping \"123\".", target: "我喝水。"),
-                Substep("Good job! You typed a complete sentence.")
+                Substep("Good job! You typed a complete sentence. You can get back to the normal keys by tapping \"拼音\" (_pīnyīn_) then move to the next step.")
              ]),
+        Step(title: "The Return Key",
+             substeps: [
+                Substep("The return key is normally labeled \"换行\" (_huànháng_, line feed), but if you input some characters, the label changes to \"确认\" (_quèrèn_, confirm), allowing you to directly input text. Try it by typing \"hello\".", target: "hello"),
+                Substep("Good. Notice the highlighting indicating that the word isn't fully entered yet. Now hit \"确认\" (_quèrèn_, confirm).", target: "hello", rawTarget: ""),
+                Substep("Great! Notice that the highlighting disappears, indicating that the text is fully entered, and the \"确认\" (_quèrèn_, confirm) key goes back to \"换行\" (_huànháng_, line feed).")
+             ]),
+        Step(title: "The Space Key", substeps: [
+            Substep("In ToneBoard, the tone buttons take the normal place of the space bar, but there is still a small space key available labeled \"空格\" (_kòng gé_, space). Try using it to type \"hello world\".", target: "hello world"),
+            Substep("Good job! (Note that this key is sometimes hidden on devices with less screen space, but you can always access a normal space bar by tapping the shift key.)")
+            ]),
+        Step(title: "Character Selection", substeps: [
+            Substep("The space key has one more function–when there are character choices displayed in the top bar, the space key's label changes to \"选定\" (_xuǎndìng_, select) and lets you input the first character choice. Try typing \"wo3\" and using this key to select the first choice of \"我\".", target: "wo3"),
+            Substep("Good, now tap \"选定\" (_xuǎndìng_, select) to input the character \"我\".", target: "我"),
+            Substep("Good work! Now you know how to use every key on the keyboard.")
+            ]),
         Step(title: "Changing Tones",
              substeps: [
                 Substep("If you want to revise your tone selection, you can just tap another tone without using backspace. Try typing \"yao2\" and seeing what character choices appear.", target: "yao2"),
-                Substep("Now try finding the character \"要\" (_yào_, want) by modifying the tone to 4. Just tap \"4\".", target: "yao4"),
+                Substep("Now try finding the character \"要\" (_yào_, want) by modifying the tone to 4. Just tap \"4̀\".", target: "yao4"),
                 Substep("Great, now select the character \"要\".", target: "要"),
                 Substep("Good, this will make it easier for you to confirm the correct tone for a character you're looking for.")
              ]),
@@ -413,12 +411,12 @@ struct TutorialView: View {
                 if (size == .large) {
                     Divider().padding(20)
                 }
-            }.frame(maxHeight: 600)
+            }.frame(maxHeight: size == .large ? 600 : 400)
             Spacer(minLength: 20)
             Group {
                 if lastStep {
                     NavigationLink(destination: InstallView()) {
-                        BigButton("Install", primary: true)
+                        BigButton("Install Keyboard", primary: true)
                     }
                 } else {
                     TutorialTextFieldView()

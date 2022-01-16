@@ -18,7 +18,7 @@ struct Home: View {
                 BigButton("Try Now", primary: true)
             }
             NavigationLink(destination: InstallView()) {
-                BigButton("Install")
+                BigButton("Install Keyboard")
             }
             NavigationLink(destination: HelpView()) {
                 BigButton("Help")
