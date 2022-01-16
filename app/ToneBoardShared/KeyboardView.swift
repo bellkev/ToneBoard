@@ -42,6 +42,7 @@ struct CandidateView: View {
     let candidate: Candidate
     let action: () -> Void
     var highlight = false
+    var showRare = false
     
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var inputState: InputState
@@ -62,9 +63,14 @@ struct CandidateView: View {
         inputState.compact ? 5 : 8.5
     }
     
+    var candidateText: String {
+        let addAsterisk = candidate.rareTone && showRare
+        return candidate.char + (addAsterisk ? "*" : "")
+    }
+    
     var body: some View {
         Button(action: action) {
-            Text(candidate.char + (candidate.rareTone ? "*" : ""))
+            Text(candidateText)
                 .font(Font(ToneBoardStyle.candidateFont))
                 .foregroundColor(Color(UIColor.label))
                 .padding(EdgeInsets(top: verticalPadding, leading: 12, bottom: verticalPadding, trailing: 12))
@@ -91,7 +97,8 @@ struct CandidatesView: View {
                     ForEach(0..<inputState.candidates.count, id: \.self) { c in
                         CandidateView(candidate: inputState.candidates[c],
                                       action: {selectCandidate(inputState.candidates[c])},
-                                      highlight: c == 0)
+                                      highlight: c == 0,
+                                      showRare: inputState.showRareTones)
                     }
                 }.id(candidateID)
                 .onChange(of: inputState.candidates) { _ in

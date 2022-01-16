@@ -2,6 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Indicate rare tones</string>
+			<key>Key</key>
+			<string>show_rare_tones</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+	</array>
 	<key>ApplicationGroupContainerIdentifier</key>
 	<string>group.com.bellkev.ToneBoard</string>
 	<key>StringsTable</key>

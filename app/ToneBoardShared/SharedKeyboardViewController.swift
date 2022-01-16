@@ -16,7 +16,7 @@ class InputState: ObservableObject {
     @Published var rawInput = ""
     @Published var candidates: [Candidate] = []
     @Published var compact = false
-    
+    @Published var showRareTones = false
 }
 
 
@@ -38,7 +38,7 @@ class SharedKeyboardViewController: UIInputViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Perform custom UI setup here
         let outer = self.inputView!
         outer.allowsSelfSizing = true
@@ -71,9 +71,8 @@ class SharedKeyboardViewController: UIInputViewController {
         updateCompactness()
         heightConstraint!.isActive = true
         
-        // Uncomment to access settings
-//        let defaults = UserDefaults(suiteName: "group.com.bellkev.ToneBoard")!
-        
+        let defaults = UserDefaults(suiteName: "group.com.bellkev.ToneBoard")!
+        inputState.showRareTones = defaults.bool(forKey: "show_rare_tones")
     }
     
     override func viewWillLayoutSubviews() {
