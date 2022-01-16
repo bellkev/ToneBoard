@@ -1,3 +1,5 @@
+import sqlite3
+
 import build_dict as bd
 
 
@@ -43,48 +45,61 @@ CC=[
     ('環', '环', 'huan2'),
 ]
 
-DICT=bd.candidate_dict(CC, ONE_GRAMS, UNIHAN_DATA)
+
+class MemoryDB:
+
+    def __init__(self):
+        self.conn = sqlite3.connect(":memory:")
+        bd.create_sqlite(self.conn, bd.candidate_dict_data(CC, ONE_GRAMS, UNIHAN_DATA))
+
+    def query(self, reading):
+        cur = self.conn.cursor()
+        cur.execute("SELECT char FROM reading_char WHERE reading = ? ORDER BY frequency DESC", (reading,))
+        return [row[0] for row in cur.fetchall()]
+
+
+DB=MemoryDB()
 
 
 def test_basic_word():
-    assert '我' in DICT['wo3']
+    assert '我' in DB.query('wo3')
 
 
 def test_compound_word():
-    assert '非常' in DICT['fei1 chang2']
+    assert '非常' in DB.query('fei1 chang2')
 
 
 def test_partial_word():
-    assert '东西南' in DICT['dong1 xi1 nan2']
+    assert '东西南' in DB.query('dong1 xi1 nan2')
 
 
 def test_ranking():
-    candidates = DICT['he1']
+    candidates = DB.query('he1')
     assert candidates.index('喝') < candidates.index('呵')
 
 
 def test_filter_non_hanzi():
-    assert '%' not in DICT.get('pa1', [])
+    assert '%' not in DB.query('pa1')
 
 
 def test_well_formed():
-    assert '々' not in DICT.get('xx', [])
+    assert '々' not in DB.query('xx')
 
 
 def test_short():
-    assert '乌里雅苏台' not in DICT.get('wu1 li3 ya3 su1 tai2', [])
+    assert '乌里雅苏台' not in DB.query('wu1 li3 ya3 su1 tai2')
 
 
 def test_compound_freq_for_sub_words():
-    candidates = DICT['ka1']
+    candidates = DB.query('ka1')
     assert candidates.index('咖') < candidates.index('喀')
     # Make sure subword candidates don't duplicate existing candidates
-    candidates = DICT['ka1']
+    candidates = DB.query('ka1')
     assert len([c for c in candidates if c=='咖']) == 1
 
 
 def test_heteronym_freqs():
-    candidates = DICT['chi1']
+    candidates = DB.query('chi1')
     assert candidates.index('吃') < candidates.index('离')
-    candidates = DICT['huan2']
+    candidates = DB.query('huan2')
     assert candidates.index('环') < candidates.index('还')

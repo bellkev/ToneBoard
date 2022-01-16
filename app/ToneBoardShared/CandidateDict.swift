@@ -29,9 +29,10 @@ struct SimpleCandidateDict: CandidateDict {
 class SQLiteCandidateDict: CandidateDict {
     
     let db: Connection
-    let readingCandidates = Table("reading_candidates")
+    let readingChar = Table("reading_char")
     let reading = Expression<String>("reading")
-    let candidates = Expression<String>("candidates")
+    let char = Expression<String>("char")
+    let frequency = Expression<Double>("frequency")
 
     
     init() {
@@ -41,10 +42,7 @@ class SQLiteCandidateDict: CandidateDict {
     
     func candidates(_ syllables: [String]) -> [String] {
         
-        if let result = try! db.pluck(readingCandidates.filter(reading == syllables.joined(separator: " "))) {
-            return result[candidates].components(separatedBy: " ")
-        } else {
-            return []
-        }
+        let result = try! db.prepareRowIterator(readingChar.filter(reading == syllables.joined(separator: " ")).order(frequency.desc))
+        return try! result.map {$0[char]}
     }
 }

@@ -135,7 +135,7 @@ def pipeline(*fns):
     return f
 
 
-def candidate_dict(cc_data, ngram_data, unihan_data):
+def candidate_dict_data(cc_data, ngram_data, unihan_data):
     pipe = pipeline(
         cc_words,
         partial(filter, filter_fn()),
@@ -143,35 +143,29 @@ def candidate_dict(cc_data, ngram_data, unihan_data):
         expand_subwords,
         merge_freqs,
         partial(scale_char_freqs, unihan_data),
-        lambda words: sorted(words, key=lambda x: x.freq, reverse=True)
     )
-    reading_entries = defaultdict(list)
-    for word in pipe(cc_data):
-        reading_entries[word.reading].append(word.simp)
-    return reading_entries
+    return pipe(cc_data)
 
 
-def save_json(d, path):
-    with open(path, 'w') as f:
-        json.dump(d, f, ensure_ascii=False)
+def create_sqlite(conn, data):
+    cursor = conn.cursor()
+    cursor.execute("""CREATE TABLE IF NOT EXISTS reading_char(
+                          reading TEXT,
+                          char TEXT,
+                          frequency REAL);""")
+    cursor.execute("CREATE INDEX reading_char_reading ON reading_char(reading);")
+    rows = [(w.reading, w.simp, w.freq) for w in data]
+    cursor.executemany("INSERT INTO reading_char VALUES (?, ?, ?)", rows)
+    conn.commit()
 
 
-def save_sqlite(d, path):
+def save_sqlite(data, path):
     try:
         os.remove(path)
     except FileNotFoundError:
         pass
     conn = sqlite3.connect(path)
-    cursor = conn.cursor()
-    # Not bothering to normalize, as only 1-2% of candidates appear under
-    # multiple readings
-    cursor.execute("""CREATE TABLE IF NOT EXISTS reading_candidates(
-                      reading TEXT PRIMARY KEY,
-                      candidates TEXT
-                   ) WITHOUT ROWID;""")
-    rows = [(reading, ' '.join(candidates)) for (reading, candidates) in d.items()]
-    cursor.executemany("INSERT INTO reading_candidates VALUES (?, ?)", rows)
-    conn.commit()
+    create_sqlite(conn, data)
     conn.close()
 
 
@@ -180,5 +174,5 @@ if __name__ == '__main__':
     unihan = load_unihan(sys.argv[1])
     one_grams = load_one_grams(sys.argv[2])
     cc = load_cc_cedict(sys.argv[3])
-    d = candidate_dict(cc, one_grams, unihan)
+    d = candidate_dict_data(cc, one_grams, unihan)
     save_sqlite(d, sys.argv[4])
