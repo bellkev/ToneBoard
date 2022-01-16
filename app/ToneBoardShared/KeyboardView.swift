@@ -114,9 +114,9 @@ struct NextKeyboardButton: UIViewRepresentable {
     
     let button: UIButton
     
-    init(setup: (UIButton) -> Void) {
+    init(color: Color, setup: (UIButton) -> Void) {
         button = UIButton()
-        button.backgroundColor = UIColor(ToneBoardStyle.keyColor)
+        button.backgroundColor = UIColor(color)
         button.setImage(UIImage(systemName: "globe"), for: .normal)
         button.layer.cornerRadius = ToneBoardStyle.keyCornerRadius
         button.tintColor = .label
@@ -350,6 +350,8 @@ struct QwertyView: View {
     @State private var qwertyState: QwertyState = .normal
     
     @EnvironmentObject var inputState: InputState
+    @Environment(\.colorScheme) var colorScheme
+
     
     var rows: [String] {
         switch qwertyState {
@@ -445,7 +447,8 @@ struct QwertyView: View {
                         SpecialKey(label: numberOrSymbol ? "拼音" : "123",
                                    action: {nextState(.tapNum)})
                         if inputState.needsInputModeSwitchKey {
-                            NextKeyboardButton(setup: setupNext)
+                            NextKeyboardButton(color: colorScheme == .dark ? ToneBoardStyle.specialKeyColorDark : ToneBoardStyle.specialKeyColor,
+                                               setup: setupNext)
                                 .padding(ToneBoardStyle.keyPadding)
                         } else {
                             spaceButton
