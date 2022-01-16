@@ -1,0 +1,14 @@
+# Changelog
+
+## Unreleased
+- A number of small fixes and changes were made to the tutorial text and order
+- There is now an option to display an asterisk next to candidates which are relatively rare choices for the given reading/tone
+- Heteronyms (e.g. 还 read as huan2 or hai2) are now ordered much more reasonably thanks to data from Unihan
+- The candidate scrollview now resets to the left when the candidates change
+- Better test coverage, particularly for the candidate dictionary
+- Add an entry in Settings.app (a settings bundle), which simplifies enabling the keyboard
+- Make the keyboard UI more consistent with the system keyboard
+- Fixed a bug causing home-row keys to be too large with shift/capslock
+
+## v1.0
+This is the initial release available on the app store.
