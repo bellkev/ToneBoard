@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.1
 - A number of small fixes and changes were made to the tutorial text and order
 - There is now an option to display an asterisk next to candidates which are relatively rare choices for the given reading/tone
 - Heteronyms (e.g. 还 read as huan2 or hai2) are now ordered much more reasonably thanks to data from Unihan
