@@ -49,7 +49,6 @@ class SQLiteCandidateDict: CandidateDict {
     }
     
     func candidates(_ syllables: [String]) -> [Candidate] {
-        
         let result = try! db.prepareRowIterator(readingChar.filter(reading == syllables.joined(separator: " ")).order(frequency.desc))
         return try! result.map {try! $0.decode()}
     }

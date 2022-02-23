@@ -31,27 +31,17 @@ struct BulletedList: View {
 
 struct InstallView: View {
     var body: some View {
-        VStack {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("You can enable ToneBoard systemwide in the Settings app:")
-                BulletedList(
-                    [
-                        "Go to the ToneBoard section in the Settings app",
-                        "Select \"Keyboards\"",
-                        "Switch on the \"ToneBoard\" keyboard"
-                    ])
-                    .padding()
-                Text("Here is a shortcut to go straight to the ToneBoard section of the Settings app:")
-            }.padding()
-            Button {
-                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-            } label: {
-                BigButton("Open Settings", primary: true)
-            }.padding()
-            Spacer()
+        StaticContent("Install") {
+            Text("You can enable ToneBoard systemwide in your device's keyboard settings:")
+            BulletedList(
+                [
+                    "Open the Settings app",
+                    "Go to General > Keyboard > Keyboards",
+                    "Select \"Add New Keyboard...\"",
+                    "Select \"ToneBoard\" under \n\"THIRD-PARTY KEYBOARDS\""
+                ])
+                .padding()
         }
-        .navigationTitle("Install")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
