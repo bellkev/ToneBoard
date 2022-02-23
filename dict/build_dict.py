@@ -10,6 +10,11 @@ import unicodedata as ud
 
 COMMON_TONE_THRESHOLD=0.75
 
+TONE_FREQUENCY_TWEAKS={
+    '喂': {'wei4': 0.5, 'wei2': 0.5},
+    '李': {'li3': 1.0},
+}
+
 
 def extract_tone(s):
     unicode_tone = {
@@ -54,6 +59,7 @@ def load_unihan(path):
             reading_freqs = {standardize_pinyin(reading['phonetic']): reading['frequency'] for reading in pinlu}
             normalize_number_values(reading_freqs)
             ret[char] = reading_freqs
+    ret.update(TONE_FREQUENCY_TWEAKS)
     return ret
 
 

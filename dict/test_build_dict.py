@@ -56,11 +56,13 @@ CC=[
 ]
 
 
-class MemoryDB:
+class SimpleDB:
 
-    def __init__(self):
-        self.conn = sqlite3.connect(":memory:")
+    def __init__(self, path):
+        self.conn = sqlite3.connect(path)
         self.conn.row_factory = sqlite3.Row
+
+    def load(self):
         bd.create_sqlite(self.conn, bd.candidate_dict_data(CC, ONE_GRAMS, UNIHAN_DATA))
 
     def query_all(self, reading):
@@ -73,7 +75,8 @@ class MemoryDB:
 
 
 
-DB=MemoryDB()
+DB=SimpleDB(":memory:")
+DB.load()
 
 
 def test_basic_word():
