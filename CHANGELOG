@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2
+- Improved ranking of several characters for which tone frequency data was incorrect or incomplete
+- Rolled back systemwide keyboard install instructions, as the button to open app settings directly does not always work correctly
+- Added help documentation for the ability to indicate rare tones
+
 ## v1.1
 - A number of small fixes and changes were made to the tutorial text and order
 - There is now an option to display an asterisk next to candidates which are relatively rare choices for the given reading/tone
