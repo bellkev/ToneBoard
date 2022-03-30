@@ -173,6 +173,17 @@ def candidate_dict_data(cc_data, ngram_data, unihan_data):
     return pipe(cc_data)
 
 
+def apply_tweaks(dict_data):
+    # As an exception, add 〇 as a typable symbol,
+    # and override its frequency to account for recent popularity
+    zero_freqs = [word.freq for word in dict_data if word.simp == '零'
+            and word.reading == 'ling2']
+    assert len(zero_freqs) == 1
+    zero_freq = zero_freqs[0]
+    dict_data.append(Word(trad='〇', simp='〇',
+        reading='ling2', freq=zero_freq - 1))
+
+
 def create_sqlite(conn, data):
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS reading_char(
@@ -201,5 +212,6 @@ if __name__ == '__main__':
     unihan = load_unihan(sys.argv[1])
     one_grams = load_one_grams(sys.argv[2])
     cc = load_cc_cedict(sys.argv[3])
-    d = candidate_dict_data(cc, one_grams, unihan)
+    d = list(candidate_dict_data(cc, one_grams, unihan))
+    apply_tweaks(d)
     save_sqlite(d, sys.argv[4])

@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.3
+- Added full-width zero ("〇") as another way to represent zero (in addition to "零") for the "ling2" reading
+
 ## v1.2
 - Improved ranking of several characters for which tone frequency data was incorrect or incomplete
 - Rolled back systemwide keyboard install instructions, as the button to open app settings directly does not always work correctly
