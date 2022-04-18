@@ -227,3 +227,4 @@ if __name__ == '__main__':
     import sys
     d = build(sys.argv[1], sys.argv[2], sys.argv[3])
     save_sqlite(d, sys.argv[4])
+    save_json(d, sys.argv[5])

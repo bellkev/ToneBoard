@@ -1,0 +1,19 @@
+{
+  "name": "ToneBoard Keyboard",
+  "manifest_version": 3,
+  "version": "0.1",
+  "description": "Learn Chinese tones while typing",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["index.js"],
+      "css": ["style.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "dict.json" ],
+      "matches": [ "<all_urls>" ]
+    }
+  ]
+}

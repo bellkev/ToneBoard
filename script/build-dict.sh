@@ -27,4 +27,4 @@ echo "Downloading CC-CEDICT..."
 download "$CC_CEDICT_URL" "$TMP_DIR/cc_cedict.txt"
 echo "Building dictionary..."
 python dict/build_dict.py \
-  "$TMP_DIR/unihan.json" "$TMP_DIR/1grams.txt" "$TMP_DIR/cc_cedict.txt" "app/dict.sqlite3"
+  "$TMP_DIR/unihan.json" "$TMP_DIR/1grams.txt" "$TMP_DIR/cc_cedict.txt" "ios/dict.sqlite3" "chrome/extension/dict.json"
