@@ -105,6 +105,8 @@ function eventHandler(e) {
         case COMMIT_INPUT:
             el.value += toInput;
             e.preventDefault();
+            let inputEvent = new Event('input', {bubbles: true, cancelable: false});
+            el.dispatchEvent(inputEvent);
             break;
         case CANCEL_INPUT:
             e.preventDefault();
