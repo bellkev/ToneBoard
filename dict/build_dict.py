@@ -184,6 +184,23 @@ def apply_tweaks(dict_data):
         reading='ling2', freq=zero_freq - 1))
 
 
+def build(unihan_path='tmp/unihan.json', one_gram_path='tmp/1grams.txt', cc_cedict_path='tmp/cc_cedict.txt'):
+    unihan = load_unihan(unihan_path)
+    one_grams = load_one_grams(one_gram_path)
+    cc = load_cc_cedict(cc_cedict_path)
+    data = list(candidate_dict_data(cc, one_grams, unihan))
+    apply_tweaks(data)
+    return data
+
+
+def save_json(data, path):
+    merged = defaultdict(list)
+    for row in sorted(data, key=lambda x: x.freq, reverse=True):
+        merged[row.reading].append(row.simp)
+    with open(path, 'w') as f:
+        json.dump(merged, f, ensure_ascii=False)
+
+
 def create_sqlite(conn, data):
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS reading_char(
@@ -206,12 +223,7 @@ def save_sqlite(data, path):
     create_sqlite(conn, data)
     conn.close()
 
-
 if __name__ == '__main__':
     import sys
-    unihan = load_unihan(sys.argv[1])
-    one_grams = load_one_grams(sys.argv[2])
-    cc = load_cc_cedict(sys.argv[3])
-    d = list(candidate_dict_data(cc, one_grams, unihan))
-    apply_tweaks(d)
+    d = build(sys.argv[1], sys.argv[2], sys.argv[3])
     save_sqlite(d, sys.argv[4])
