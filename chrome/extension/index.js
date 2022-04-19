@@ -4,14 +4,6 @@ const CONTINUE_INPUT = 'CONTINUE_INPUT';
 const COMMIT_INPUT = 'COMMIT_INPUT';
 const CANCEL_INPUT = 'CANCEL_INPUT';
 
-const inputState = {
-    candidates: [],
-    rawInput: '',
-    selected: 0,
-}
-
-const uiState = {}
-
 function toneBoardInput(rawInput) {
     let syllables = [];
     let remainder = '';
@@ -26,25 +18,22 @@ function toneBoardInput(rawInput) {
     return {syllables, remainder};
 }
 
-function makeView() {
-    let el = document.createElement('DIV');
-    el.id = 'tbview';
-    el.lang = 'zh-CN';
-    return el;
-}
-
 function render(inputState, uiState) {
     let candidateMarkup = inputState.candidates.map((c, i) =>
         `<div class="tbcandidate ${i == inputState.selected ? 'selected' : ''}">${c}</div>`
     ).join('');
     let {syllables, remainder} = toneBoardInput(inputState.rawInput);
     syllables.push(remainder);
+    let rect = getCursorRect(uiState.inputElement);
     let markup = `
-    <div id="tbinput">
-        ${syllables.join(' ') || '&nbsp;'}
-    </div>
-    <div id="tbcandidates">
-        ${candidateMarkup}<div class="tbcandidate placeholder">&nbsp;</div>
+    <div id="tbview" class="${inputState.rawInput ? '' : 'hidden'}"
+        style="left: ${rect.left}px; top: ${rect.bottom}px;" lang="zh-CN">
+        <div id="tbinput">
+            ${syllables.join(' ') || '&nbsp;'}
+        </div>
+        <div id="tbcandidates">
+            ${candidateMarkup}<div class="tbcandidate placeholder">&nbsp;</div>
+        </div>
     </div>
     `
     uiState.view.innerHTML = markup;
@@ -103,6 +92,7 @@ function eventHandler(e) {
     console.log(result);
     switch (result) {
         case COMMIT_INPUT:
+            // TODO: actually insert at the cursor...
             el.value += toInput;
             e.preventDefault();
             let inputEvent = new Event('input', {bubbles: true, cancelable: false});
@@ -118,21 +108,28 @@ function eventHandler(e) {
             inputState.candidates = dictData[syllables.join(' ')] || [];
             e.preventDefault();
             break;
+        // TODO: Add basic substitutions like full-width commas
         case NOOP:
             break;
     }
+    uiState.inputElement = e.target;
     render(inputState, uiState);
 }
 
-uiState.view = makeView();
-render(inputState, uiState);
+const inputState = {
+    candidates: [],
+    rawInput: '',
+    selected: 0,
+}
+
+const uiState = {}
+
+uiState.view = document.createElement('DIV');
+// render(inputState, uiState);
 document.body.appendChild(uiState.view);
 
-let dictUrl = "extension/dict.json";
+let dictUrl = chrome.runtime ? chrome.runtime.getURL("dict.json") : "extension/dict.json";
 
-if (chrome.runtime) {
-    dictUrl = chrome.runtime.getURL("dict.json")
-}
 
 fetch(dictUrl)
 .then(response => response.json())
@@ -140,4 +137,4 @@ fetch(dictUrl)
     window.dictData = data;
 });
 
-document.addEventListener('keydown', eventHandler)
+document.addEventListener('keydown', eventHandler);
