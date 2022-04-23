@@ -185,4 +185,4 @@ function init() {
     document.addEventListener('keydown', (e) => {eventHandler(e, state, view, dict)});
 }
 
-init();
+window.addEventListener('DOMContentLoaded', init);
