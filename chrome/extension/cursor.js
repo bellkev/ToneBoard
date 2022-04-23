@@ -1,3 +1,5 @@
+'use strict';
+
 const TEXT_ATTRS = ['font-family', 'font-size', 'font-weight',
 'font-style', 'text-transform', 'text-decoration', 'letter-spacing',
 'word-spacing', 'line-height', 'text-align', 'vertical-align', 'margin',

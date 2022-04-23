@@ -1,8 +1,49 @@
-const NOOP = 'NOOP';
-const BEGIN_INPUT = 'BEGIN_INPUT';
-const CONTINUE_INPUT = 'CONTINUE_INPUT';
-const COMMIT_INPUT = 'COMMIT_INPUT';
-const CANCEL_INPUT = 'CANCEL_INPUT';
+'use strict';
+
+const TbKeyType = {
+    LEFT: 'LEFT',
+    RIGHT: 'RIGHT',
+    ENTER: 'ENTER',
+    SPACE: 'SPACE',
+    BACKSPACE: 'BACKSPACE',
+    WORD: 'WORD',
+    SYMBOL: 'SYMBOL',
+    OTHER: 'OTHER',
+}
+
+const TbAction = {
+    COMPOSE_APPEND: 'COMPOSE_APPEND',
+    COMPOSE_DELETE: 'COMPOSE_DELETE',
+    NEXT_CANDIDATE: 'NEXT_CANDIDATE',
+    PREVIOUS_CANDIDATE: 'PREVIOUS_CANDIDATE',
+    COMMIT_CANDIDATE: 'COMMIT_CANDIDATE',
+    COMMIT_RAW: 'COMMIT_RAW',
+    CANCEL_WITH_DEFAULT: 'CANCEL_WITH_DEFAULT',
+    CANCEL_WITH_REPLACEMENT: 'CANCEL_WITH_REPLACEMENT',
+    REPLACE: 'REPLACE',
+    DEFAULT: 'DEFAULT',
+}
+
+function toneBoardKey(e) {
+    let type;
+    let modifiers = ["Alt", "AltGraph", "Control", "Meta", "OS"];
+    if (modifiers.some((m) => e.getModifierState(m))) {
+        type = TbKeyType.OTHER;
+    } else if (e.key == 'Tab' && e.getModifierState('Shift')) {
+        type = TbKeyType.LEFT;
+    } else if (e.key == 'Tab') {
+        type = TbKeyType.RIGHT;
+    } else if (e.key.match(/^[a-z1-5]$/)) {
+        type = TbKeyType.WORD;
+    } else if (e.key == 'Backspace') {
+        type = TbKeyType.BACKSPACE;
+    } else if (e.key == ' ') {
+        type = TbKeyType.SPACE;
+    } else if (e.key == 'Enter') {
+        type = TbKeyType.ENTER;
+    }
+    return {key: e.key, type};
+}
 
 function toneBoardInput(rawInput) {
     let syllables = [];
@@ -18,16 +59,15 @@ function toneBoardInput(rawInput) {
     return {syllables, remainder};
 }
 
-function render(inputState, uiState) {
+function render(inputState, view, caretRect) {
     let candidateMarkup = inputState.candidates.map((c, i) =>
         `<div class="tbcandidate ${i == inputState.selected ? 'selected' : ''}">${c}</div>`
     ).join('');
     let {syllables, remainder} = toneBoardInput(inputState.rawInput);
     syllables.push(remainder);
-    let rect = getCursorRect(uiState.inputElement);
     let markup = `
     <div id="tbview" class="${inputState.rawInput ? '' : 'hidden'}"
-        style="left: ${rect.left}px; top: ${rect.bottom}px;" lang="zh-CN">
+        style="left: ${caretRect.left}px; top: ${caretRect.bottom}px;" lang="zh-CN">
         <div id="tbinput">
             ${syllables.join(' ') || '&nbsp;'}
         </div>
@@ -36,42 +76,66 @@ function render(inputState, uiState) {
         </div>
     </div>
     `
-    uiState.view.innerHTML = markup;
+    view.innerHTML = markup;
 }
 
-function updateState(inputState, e) {
-    // TODO: Operate on key (code) here instead of events
-    let result, toInput;
-    if (e.key == 'Backspace' && inputState.rawInput) {
-        inputState.rawInput = inputState.rawInput.slice(0,-1);
-        result = inputState.rawInput ? CONTINUE_INPUT : CANCEL_INPUT;
-    } else if (e.key == 'Tab' && inputState.candidates.length) {
-        // TODO: Allow selection with more than just tab (arrow keys, etc)
-        let shift = e.getModifierState('Shift');
-        if (shift && 0 < inputState.selected) {
-            inputState.selected--;
-        } else if (!shift && inputState.selected < inputState.candidates.length - 1) {
-            inputState.selected++;
-        }
-        result = CONTINUE_INPUT;
-    } else if (e.code == 'Space' && inputState.candidates.length) {
-        // Commit text...
-        toInput = inputState.candidates[inputState.selected];
-        inputState.candidates = [];
-        inputState.rawInput = '';
-        inputState.selected = 0;
-        result = COMMIT_INPUT;
-    } else if (e.key.match(/^[a-z1-5]$/)) {
-        let initial = inputState.rawInput;
-        inputState.rawInput += e.key;
-        result = initial ? CONTINUE_INPUT : BEGIN_INPUT;
+function nextAction(inputState, tbKey) {
+    let composing = !!inputState.rawInput;
+    let hasCandidates = !!inputState.candidates.length;
+    if (tbKey.type == TbKeyType.WORD) {
+        return TbAction.COMPOSE_APPEND;
+    } else if (inputState.rawInput && tbKey.type == TbKeyType.ENTER) {
+        return TbAction.COMMIT_RAW;
+    } else if (hasCandidates && tbKey.type == TbKeyType.LEFT) {
+        return TbAction.PREVIOUS_CANDIDATE;
+    } else if (hasCandidates && tbKey.type == TbKeyType.RIGHT) {
+        return TbAction.NEXT_CANDIDATE;
+    } else if (hasCandidates && tbKey.type == TbKeyType.SPACE) {
+        return TbAction.COMMIT_CANDIDATE;
+    } else if (composing && tbKey.type == TbKeyType.BACKSPACE) {
+        return TbAction.COMPOSE_DELETE;
     } else {
-        result = NOOP;
+        return TbAction.DEFAULT;
     }
-    return {result, toInput};
 }
 
-function eventHandler(e) {
+function newInputState() {
+    return {
+        candidates: [],
+        rawInput: '',
+        selected: 0,
+    }
+}
+
+function executeAction(inputState, action, key) {
+    let clearInputState = () => {Object.assign(inputState, newInputState())};
+    if (action == TbAction.PREVIOUS_CANDIDATE && inputState.selected > 0) {
+        inputState.selected--;
+    } else if (action == TbAction.NEXT_CANDIDATE && inputState.selected < inputState.candidates.length - 1) {
+        inputState.selected++;
+    } else if (action == TbAction.COMPOSE_APPEND) {
+        inputState.rawInput += key;
+    } else if (action == TbAction.COMPOSE_DELETE) {
+        inputState.rawInput = inputState.rawInput.slice(0,-1)
+    } else if (action == TbAction.COMMIT_CANDIDATE) {
+        let candidate = inputState.candidates[inputState.selected];
+        clearInputState();
+        return candidate;
+    } else if (action == TbAction.COMMIT_RAW) {
+        let raw = inputState.rawInput;
+        clearInputState();
+        return raw;
+    }
+
+}
+
+function refreshCandidates(inputState, dict) {
+    let {syllables} = toneBoardInput(inputState.rawInput);
+    // TODO: Update selection?
+    inputState.candidates = dict[syllables.join(' ')] || [];
+}
+
+function eventHandler(e, inputState, view, dict) {
     // TODO: Handle switching to different areas, focus events
     let el = e.target;
     let isTextInput = el.tagName == 'INPUT' && el.type == 'text';
@@ -80,61 +144,45 @@ function eventHandler(e) {
         return;
     }
     // TODO: Add zh-CN/zh-Hans...
+    // TODO: Attribute is not always sufficient, consider checking placeholder as well
     if (!el.attributes['lang'] || el.attributes['lang'].value != 'zh') {
         return;
     }
-    let modifiers = ["Alt", "AltGraph", "Control", "Meta", "OS"];
-    if (modifiers.some((m) => e.getModifierState(m))) {
-        return;
+    let tbKey = toneBoardKey(e);
+    let action = nextAction(inputState, tbKey);
+    // Update new inputState and determine any NON-DEFAULT text to insert at caret
+    let newText = executeAction(inputState, action, e.key);
+    refreshCandidates(inputState, dict);
+    // Update DOM
+    if (action != TbAction.DEFAULT && action != TbAction.CANCEL_WITH_DEFAULT) {
+        e.preventDefault();
+        // Try to prevent actions that happen on enter (e.g. Duolingo answer submission).
+        // This works in practice, but may need to do more to make this handler run first
+        // provide an alternative to the enter key for committing rawInput
+        e.stopImmediatePropagation();
+        let inputEvent = new Event('input', {bubbles: true, cancelable: false});
+        el.dispatchEvent(inputEvent);
     }
-    // TODO: Name these better...
-    let {result, toInput} = updateState(inputState, e);
-    console.log(result);
-    switch (result) {
-        case COMMIT_INPUT:
-            // TODO: actually insert at the cursor...
-            el.value += toInput;
-            e.preventDefault();
-            let inputEvent = new Event('input', {bubbles: true, cancelable: false});
-            el.dispatchEvent(inputEvent);
-            break;
-        case CANCEL_INPUT:
-            e.preventDefault();
-            break;
-        case BEGIN_INPUT:
-        case CONTINUE_INPUT:
-            let {syllables} = toneBoardInput(inputState.rawInput);
-            // TODO: Update selection?
-            inputState.candidates = dictData[syllables.join(' ')] || [];
-            e.preventDefault();
-            break;
-        // TODO: Add basic substitutions like full-width commas
-        case NOOP:
-            break;
+    // TODO: actually insert at the cursor...
+    if (newText) {
+        el.value += newText;
+        // document.execCommand('insertText', false, newText);
     }
-    uiState.inputElement = e.target;
-    render(inputState, uiState);
+    render(inputState, view, getCursorRect(el));
 }
 
-const inputState = {
-    candidates: [],
-    rawInput: '',
-    selected: 0,
+function init() {
+    const view = document.createElement('DIV');
+    document.body.appendChild(view);
+    const state = newInputState();
+    const dict = {};
+    const dictUrl = chrome.runtime ? chrome.runtime.getURL("dict.json") : "extension/dict.json";
+    fetch(dictUrl)
+        .then(response => response.json())
+        .then(data => {
+            Object.assign(dict, data);
+        });
+    document.addEventListener('keydown', (e) => {eventHandler(e, state, view, dict)});
 }
 
-const uiState = {}
-
-uiState.view = document.createElement('DIV');
-// render(inputState, uiState);
-document.body.appendChild(uiState.view);
-
-let dictUrl = chrome.runtime ? chrome.runtime.getURL("dict.json") : "extension/dict.json";
-
-
-fetch(dictUrl)
-.then(response => response.json())
-.then(data => {
-    window.dictData = data;
-});
-
-document.addEventListener('keydown', eventHandler);
+init();
