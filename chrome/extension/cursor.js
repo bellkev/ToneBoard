@@ -1,11 +1,9 @@
-'use strict';
-
 const TEXT_ATTRS = ['font-family', 'font-size', 'font-weight',
 'font-style', 'text-transform', 'text-decoration', 'letter-spacing',
 'word-spacing', 'line-height', 'text-align', 'vertical-align', 'margin',
 'padding', 'border-width', 'border-style', 'overflow', 'overflow-wrap'];
 
-function getCursorRect(el) {
+export function getCursorRect(el) {
     // TODO: Handle an <input> element that overflows...
     let cursorLocation = el.selectionStart;
     let dummy = document.createElement('PRE');

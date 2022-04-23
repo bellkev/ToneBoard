@@ -4,19 +4,20 @@
   "version": "0.1",
   "description": "Learn Chinese tones while typing",
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "run_at": "document_start",
-      "js": ["cursor.js", "index.js"],
+      "js": ["index.js"],
       "css": ["style.css"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["dict.json", "popup.html", "popup.css", "popup.js"],
+      "resources": ["dict.json", "popup.html", "popup.css", "popup.js", "cursor.js", "toneboard.js"],
       "matches": [ "<all_urls>" ]
     }
   ],

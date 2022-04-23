@@ -1,4 +1,4 @@
-'use strict';
+import * as config from './config.js';
 
 function setBadgeMode(mode) {
     let setBadge = (text, color) => {
@@ -19,19 +19,11 @@ function setBadgeMode(mode) {
 }
 
 function loadBadgeMode() {
-    chrome.storage.local.get(['mode'], function(result) {
-        // TODO: Don't duplicate this...
-        setBadgeMode(result.mode || 'auto');
-        });
+    config.getMode(setBadgeMode);
 }
 
-chrome.storage.onChanged.addListener((changes) => {
-    if (!changes.mode) {
-        return;
-    }
-    setBadgeMode(changes.mode.newValue);
-});
-
+// This is all storage is used for now, so just listening for any change
+chrome.storage.onChanged.addListener(loadBadgeMode);
 chrome.runtime.onStartup.addListener(loadBadgeMode);
 chrome.runtime.onInstalled.addListener(loadBadgeMode);
 // Unclear from docs, but seems we can count on this running when extension is enabled
