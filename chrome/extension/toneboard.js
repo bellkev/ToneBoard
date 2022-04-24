@@ -1,4 +1,5 @@
 import { getCursorRect } from './cursor.js';
+import * as config from './config.js';
 
 const TbKeyType = {
     LEFT: 'LEFT',
@@ -135,25 +136,40 @@ function refreshCandidates(inputState, dict) {
     inputState.candidates = dict[syllables.join(' ')] || [];
 }
 
-function eventHandler(e, inputState, view, dict) {
-    // TODO: Handle switching to different areas, focus events
-    let el = e.target;
+function shouldHandleEvent(el, mode) {
+    if (mode == config.modes.OFF) {
+        return false;
+    }
     let isTextInput = el.tagName == 'INPUT' && el.type == 'text';
     let isTextArea = el.tagName == 'TEXTAREA';
     if (!(isTextInput || isTextArea)) {
-        return;
+        return false;
+    }
+    if (mode == config.modes.ON) {
+        return true;
     }
     // TODO: Add zh-CN/zh-Hans...
     // TODO: Attribute is not always sufficient, consider checking placeholder as well
-    if (!el.attributes['lang'] || el.attributes['lang'].value != 'zh') {
+    return el.attributes['lang']?.value == 'zh';
+}
+
+function eventHandler(e, state, view, dict) {
+    // TODO: Handle switching to different areas, focus events
+    let el = e.target;
+    if (!shouldHandleEvent(el, state.mode)) {
         return;
     }
+    let inputState = state.input;
     let tbKey = toneBoardKey(e);
     let action = nextAction(inputState, tbKey);
     // Update new inputState and determine any NON-DEFAULT text to insert at caret
     let newText = executeAction(inputState, action, e.key);
     refreshCandidates(inputState, dict);
     // Update DOM
+    // TODO: actually insert at the cursor...
+    if (newText) {
+        el.value += newText;
+    }
     if (action != TbAction.DEFAULT && action != TbAction.CANCEL_WITH_DEFAULT) {
         e.preventDefault();
         // Try to prevent actions that happen on enter (e.g. Duolingo answer submission).
@@ -163,18 +179,16 @@ function eventHandler(e, inputState, view, dict) {
         let inputEvent = new Event('input', {bubbles: true, cancelable: false});
         el.dispatchEvent(inputEvent);
     }
-    // TODO: actually insert at the cursor...
-    if (newText) {
-        el.value += newText;
-        // document.execCommand('insertText', false, newText);
-    }
     render(inputState, view, getCursorRect(el));
 }
 
 export function init() {
     const view = document.createElement('DIV');
     document.body.appendChild(view);
-    const state = newInputState();
+    const state = {
+        input: newInputState(),
+        mode: config.modes.OFF
+    }
     const dict = {};
     const dictUrl = chrome.runtime ? chrome.runtime.getURL("dict.json") : "dict.json";
     fetch(dictUrl)
@@ -183,4 +197,9 @@ export function init() {
             Object.assign(dict, data);
         });
     document.addEventListener('keydown', (e) => {eventHandler(e, state, view, dict)});
+    if (chrome.runtime) {
+        config.onModeChange((mode) => {
+            state.mode = mode;
+        });
+    }
 }
