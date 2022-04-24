@@ -60,9 +60,39 @@ function toneBoardInput(rawInput) {
     return {syllables, remainder};
 }
 
+function adjustCandidateScroll(candidatesElement, selection) {
+    // Scroll just enough (+ some padding) that the selected candidate is not clipped
+    // Using the full candidatesElement width as coordinate system
+    let visibleWidth = candidatesElement.offsetWidth;
+    let left = el => el.offsetLeft
+    let right = el => el.offsetLeft + el.offsetWidth
+    let anchorLeft = el => candidatesElement.scrollLeft = left(el) - 5;
+    let anchorRight = el => candidatesElement.scrollLeft = right(el) - visibleWidth + 5;
+    // First scroll to the established anchor element
+    let anchor = candidatesElement.children[selection.scrollAnchor];
+    if (selection.anchorRight) {
+        anchorRight(anchor)
+    } else {
+        anchorLeft(anchor)
+    }
+    // Then ensure the selected candidate is visible
+    let visibleLeft = candidatesElement.scrollLeft;
+    let visibleRight = visibleLeft + visibleWidth;
+    let selected = candidatesElement.children[selection.selected];
+    if (visibleRight < right(selected)) {
+        anchorRight(selected)
+        selection.scrollAnchor = selection.selected
+        selection.anchorRight = true
+    } else if (left(selected) < visibleLeft) {
+        anchorLeft(selected)
+        selection.scrollAnchor = selection.selected
+        selection.anchorRight = false
+    }
+}
+
 function render(inputState, view, caretRect) {
     let candidateMarkup = inputState.candidates.map((c, i) =>
-        `<div class="tbcandidate ${i == inputState.selected ? 'selected' : ''}">${c}</div>`
+        `<div class="tbcandidate ${i == inputState.selection.selected ? 'selected' : ''}">${c}</div>`
     ).join('');
     let {syllables, remainder} = toneBoardInput(inputState.rawInput);
     syllables.push(remainder);
@@ -78,6 +108,7 @@ function render(inputState, view, caretRect) {
     </div>
     `
     view.innerHTML = markup;
+    adjustCandidateScroll(view.querySelector('#tbcandidates'), inputState.selection);
 }
 
 function nextAction(inputState, tbKey) {
@@ -104,22 +135,26 @@ function newInputState() {
     return {
         candidates: [],
         rawInput: '',
-        selected: 0,
+        selection: {
+            selected: 0,
+            scrollAnchor: 0,
+            anchorRight: false
+        }
     }
 }
 
 function executeAction(inputState, action, key) {
     let clearInputState = () => {Object.assign(inputState, newInputState())};
-    if (action == TbAction.PREVIOUS_CANDIDATE && inputState.selected > 0) {
-        inputState.selected--;
-    } else if (action == TbAction.NEXT_CANDIDATE && inputState.selected < inputState.candidates.length - 1) {
-        inputState.selected++;
+    if (action == TbAction.PREVIOUS_CANDIDATE && inputState.selection.selected > 0) {
+        inputState.selection.selected--;
+    } else if (action == TbAction.NEXT_CANDIDATE && inputState.selection.selected < inputState.candidates.length - 1) {
+        inputState.selection.selected++;
     } else if (action == TbAction.COMPOSE_APPEND) {
         inputState.rawInput += key;
     } else if (action == TbAction.COMPOSE_DELETE) {
         inputState.rawInput = inputState.rawInput.slice(0,-1)
     } else if (action == TbAction.COMMIT_CANDIDATE) {
-        let candidate = inputState.candidates[inputState.selected];
+        let candidate = inputState.candidates[inputState.selection.selected];
         clearInputState();
         return candidate;
     } else if (action == TbAction.COMMIT_RAW) {
@@ -187,19 +222,22 @@ export function init() {
     document.body.appendChild(view);
     const state = {
         input: newInputState(),
-        mode: config.modes.OFF
+        mode: config.modes.AUTO
     }
     const dict = {};
-    const dictUrl = chrome.runtime ? chrome.runtime.getURL("dict.json") : "dict.json";
-    fetch(dictUrl)
-        .then(response => response.json())
-        .then(data => {
-            Object.assign(dict, data);
-        });
-    document.addEventListener('keydown', (e) => {eventHandler(e, state, view, dict)});
+    let dictUrl;
     if (chrome.runtime) {
+        dictUrl = chrome.runtime.getURL("dict.json");
         config.onModeChange((mode) => {
             state.mode = mode;
         });
+    } else {
+        dictUrl = window.dictUrl;
     }
+    fetch(dictUrl)
+    .then(response => response.json())
+    .then(data => {
+        Object.assign(dict, data);
+    });
+    document.addEventListener('keydown', (e) => {eventHandler(e, state, view, dict)});
 }
