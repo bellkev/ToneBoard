@@ -38,6 +38,19 @@ function parseRaw(rawInput) {
     return {syllables, remainder};
 }
 
+const replacements = {
+    ':': '：',
+    ';': '；',
+    '.': '。',
+    ',': '，',
+    '(': '（',
+    ')': '）',
+    '[': '【',
+    ']': '】',
+    '?': '？',
+    '!': '！',
+}
+
 
 const actions = {
     composeAppend: (state, key) => {
@@ -70,14 +83,23 @@ const actions = {
         state.rawInput = state.rawInput.slice(0,-1)
         return {preventDefault: true};
     },
-    default: () => ({preventDefault: false})
+    replace: (state, key) => {
+        resetState(state);
+        return {newText: replacements[key], preventDefault: true};
+    },
+    default: () => {},
+    cancel: (state) => {
+        resetState(state);
+    }
 }
 
 
 function nextAction(inputState, key) {
     let composing = !!inputState.rawInput;
     let hasCandidates = !!inputState.candidates.length;
-    if (key.match(/^[a-z0-9]$/)) {
+    if (replacements.hasOwnProperty(key)) {
+        return actions.replace;
+    } else if (key.match(/^[a-z0-9]$/)) {
         return actions.composeAppend;
     } else if (inputState.rawInput && key == keys.ENTER) {
         return actions.commitRaw;
@@ -89,8 +111,11 @@ function nextAction(inputState, key) {
         return actions.commitCandidate;
     } else if (composing && key == keys.BACKSPACE) {
         return actions.composeDelete;
-    } else {
+    } else if (key == keys.SHIFT) {
+        // TODO: Maybe other keys that are safe to ignore while composing...
         return actions.default;
+    } else {
+        return actions.cancel;
     }
 }
 
@@ -111,7 +136,7 @@ export function handleKeyEvent(inputState, e, dict) {
     let action = nextAction(inputState, key);
     let ret = action(inputState, key);
     refreshCandidates(inputState, dict);
-    return ret;
+    return ret || {};
 
 }
 

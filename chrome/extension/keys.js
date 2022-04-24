@@ -3,6 +3,7 @@ export const RIGHT = 'RIGHT';
 export const ENTER = 'ENTER';
 export const SPACE = 'SPACE';
 export const BACKSPACE = 'BACKSPACE';
+export const SHIFT = 'SHIFT';
 export const OTHER = 'OTHER';
 
 
@@ -13,6 +14,9 @@ export function normalizedKey(e) {
     let modifiers = ["Alt", "AltGraph", "Control", "Meta", "OS"];
     if (modifiers.some((m) => e.getModifierState(m))) {
         return OTHER;
+    }
+    if (e.key == 'Shift') {
+        return SHIFT;
     }
     if (e.key == 'Tab' && e.getModifierState('Shift')) {
         return LEFT;
