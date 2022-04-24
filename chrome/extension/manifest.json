@@ -18,7 +18,8 @@
   "web_accessible_resources": [
     {
       "resources": ["dict.json", "popup.html", "popup.css",
-                    "popup.js", "cursor.js", "toneboard.js", "config.js"],
+                    "popup.js", "cursor.js", "toneboard.js",
+                    "config.js", "input.js", "keys.js"],
       "matches": [ "<all_urls>" ]
     }
   ],
