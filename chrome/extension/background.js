@@ -26,4 +26,9 @@ function loadBadgeMode() {
 // Relevant: https://stackoverflow.com/questions/13979781/chrome-extension-how-to-handle-disable-and-enable-event-from-browser
 config.onModeChange(setBadgeMode);
 chrome.runtime.onStartup.addListener(loadBadgeMode);
-chrome.runtime.onInstalled.addListener(loadBadgeMode);
+chrome.runtime.onInstalled.addListener(details => {
+    loadBadgeMode();
+    if (details.reason == chrome.runtime.OnInstalledReason.INSTALL) {
+        chrome.tabs.create({active: true, url: "welcome.html"});
+    }
+});
