@@ -2,8 +2,90 @@
 <html>
 <head>
     <link href="welcome.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <meta charset="utf-8"/>
 </head>
 <body>
-    Welcome!
+    <div id="sidebar">
+        <header>
+            <h1><img id="logo" src="icons/icon128.png">ToneBoard</h1>
+            <nav>
+                <ul>
+                    <li><a href="#welcome">Welcome</a></li>
+                    <li><a href="#tutorial">Tutorial</a></li>
+                    <li><a href="#help">Help</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+    <main>
+        <h2 id="welcome">Welcome to ToneBoard!</h2>
+        ToneBoard is an input method that requires you to enter the correct tones while typing simplified Chinese with Pinyin.
+        <h2 id="tutorial">Tutorial</h2>
+        Test out the ToneBoard Chrome extension in the input boxes just below.
+        <h3>The Basics</h3>
+        <p>Input Chinese characters by typing a syllable in Pinyin followed by a tone number. Try entering 好 (<em>hǎo</em>, good) by typing "hao3". You can select the first option with the space key.</p>
+        <div class="tutorialstep">
+            <label for="tutorial1">Type here:</label><input id="tutorial1" lang="zh"></input>
+        </div>
+        <h3>Words</h3>
+        <p>Now try inputting a compound word. Try entering "可爱" (<em>kěài</em>, cute) by typing "ke3ai4". Notice that the syllables "ke3 ai4" are displayed with a space between them for easier reading.</p>
+        <div class="tutorialstep">
+            <label for="tutorial2">Type here:</label><input id="tutorial2" lang="zh"></input>
+        </div>
+        <h3>Sentences</h3>
+        <p>ToneBoard does not try to make complete sentences for you, so you will need to input them one word at a time. Try inputting "我喝水" (<em>wǒ hē shuǐ</em>, or "I drink water"). You can add a Chinese full-stop ("。") using the normal full-stop/period (".") key.</p>
+        <div class="tutorialstep">
+            <label for="tutorial3">Type here:</label><input id="tutorial3" lang="zh"></input>
+        </div>
+        <h3>Selecting Characters</h3>
+        <p>You can cycle through options of characters to input using the Tab or left-arrow keys. (You can go back to previous options using Shift-Tab or right-arrow keys.) Try typing "li3" and choosing "李" (a common Chinese family name).</p>
+        <div class="tutorialstep">
+            <label for="tutorial4">Type here:</label><input id="tutorial4" lang="zh"></input>
+        </div>
+        <h3>The Return Key</h3>
+        <p>The "return" (or "enter") key can be used to directly enter any typed text, ignoring any Chinese character options present. Try inputting "hello" by typing "hello" and then hitting return.</p>
+        <div class="tutorialstep">
+            <label for="tutorial5">Type here:</label><input id="tutorial5" lang="zh"></input>
+        </div>
+        <h3 id="modes">Modes</h3>
+        <p>The ToneBoard Chrome extension has several "modes" of operation:</p>
+        <ul>
+            <li><strong>Auto (detect Chinese input fields):</strong> This is the default mode. (All the input fields so far in the tutorial have been indicated as Chinese-language.) It is very useful on language learning websites that frequently switch between e.g. English and Chinese input fields. It is indicated in the Chrome Extension icon with a "中" character: <img class="mode" src="img/auto.png"></li>
+            <li><strong>On:</strong> Enable ToneBoard on any input field, indicated as "On": <img class="mode" src="img/on.png"></li>
+            <li><strong>Off:</strong> Disable ToneBoard on all input fields, indicated as "Off": <img class="mode" src="img/off.png"></li>
+        </ul>
+        <p>You can change the mode by clicking on the ToneBoard icon and selecting an option in the popup menu:</p>
+        <img class="menu" src="img/menu.png">
+        <p>Try using the following input fields to test the Auto/On/Off modes:</p>
+        <div class="tutorialstep">
+            <label for="tutorial6a">This is a Chinese-language input field:</label><input id="tutorial6a" lang="zh" placeholder="Type in Chinese..."></input>
+        </div>
+        <div class="tutorialstep">
+            <label for="tutorial6a">This is an English-language input field:</label><input id="tutorial6a" lang="en" placeholder="Type in English..."></input>
+        </div>
+        <h2 id="help">Help</h2>
+        <h3>Why isn't the ToneBoard input popup showing up?</h3>
+        <p>If ToneBoard is in the "On" mode (see <a href="#modes">modes</a>) and you type a valid pinyin syllable like "hao" and the ToneBoard interface does not appear, this could be because:</p>
+        <ol>
+            <li><strong>It is an unsupported HTML element:</strong> The ToneBoard Chrome extension currently works with standard HTML "input" and "textarea" elements. Other mechanisms used by editors like Google Docs are not currently supported.</li>
+            <li><strong>The website is using the input field in an unsupported way:</strong> Many websites use JavaScript to interact with HTML input elements in the same way that ToneBoard does. It is possible that some websites' code will conflict with ToneBoard.</li>
+        </ol>
+        <p>If the ToneBoard interface appears in "On" mode but not in "Auto" mode, this is because ToneBoard is unable to detect that the field is meant for Chinese language (technically, the "lang" attribute is not set to "zh" on the HTML "input" or "textarea" element). Use "On" mode to force ToneBoard to appear.</p>
+        <h3>Why isn't some character or word showing up?</h3>
+        <p>ToneBoard presents character and word choices based on data from the <a href="https://cc-cedict.org/">CC-CEDICT</a> project. You can explore the data there to see what words and readings are available. You can also contribute new words to the project so that they can be included in a future version of ToneBoard. Note that ToneBoard does remove a few entries from the CC-CEDICT data. Specifically, it only includes words that are four or fewer characters, consisting only of 汉字 (<em>hànzì</em>, Chinese characters), and including a Pinyin reading in the normal format.</p>
+        <h3>I still need help.</h3>
+        <p>If you don't find an answer to your question above, you can open an issue in the public <a href="https://github.com/bellkev/ToneBoard/issues">issue list</a> or contact <a href="mailto:toneboard@bellkev.com">toneboard@bellkev.com</a>.</p>
+        <h2 id="about">About</h2>
+        <h3>Motivation</h3>
+        <p>It can be very difficult for language learners to remember Mandarin Chinese tones, especially when using language learning apps and typing with standard Pinyin keyboards. These keyboards don't require you to input tones, making it very easy to type the correct characters without knowing the correct tones. These keyboards also tend to remember your frequently used words or suggest complete phrases, which is not helpful for language learners.</p>
+        <p>By requiring you to enter tones along with Pinyin spellings before displaying characters, ToneBoard lets you practice recalling the correct tone for each syllable whenever you type.</p>
+        <h3>Data Sources</h3>
+        <p>ToneBoard gets Pinyin spellings and tones for words and characters from <a href="https://cc-cedict.org/">CC-CEDICT</a>. The word frequency data used to show the most common words first comes from the <a href="https://books.google.com/ngrams/datasets">Google Ngram data</a> and the <a href="https://www.unicode.org/charts/unihan.html">Unihan</a> database.</p>
+        <h3>Source Code</h3>
+        <p>The ToneBoard keyboard is free and open-source software. You can find the source code on GitHub <a href="https://github.com/bellkev/ToneBoard">here</a>.</p>
+    </main>
+    <script src="index.js" type="application/javascript" charset="utf-8"></script>
 </body>
 </html>

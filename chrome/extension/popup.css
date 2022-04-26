@@ -1,7 +1,8 @@
 #logo {
     height: 25px;
-    padding: 0 10px;
+    margin: 0 10px;
     vertical-align: text-top;
+    border-radius: 3px;
 }
 
 h1 {
@@ -22,10 +23,10 @@ a {
     color: black;
 }
 
-#content {
+main {
     padding: 0 10px;
 }
 
-#footer {
-    padding-top: 5px;
+footer {
+    padding-top: 10px;
 }
