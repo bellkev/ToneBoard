@@ -18,10 +18,10 @@ export function normalizedKey(e) {
     if (e.key == 'Shift') {
         return SHIFT;
     }
-    if (e.key == 'Tab' && e.getModifierState('Shift')) {
+    if ((e.key == 'Tab' && e.getModifierState('Shift')) || ['ArrowLeft', 'ArrowUp'].includes(e.key)) {
         return LEFT;
     }
-    if (e.key == 'Tab') {
+    if (e.key == 'Tab' || ['ArrowRight', 'ArrowDown'].includes(e.key)) {
         return RIGHT;
     }
     if (e.key == 'Backspace') {
