@@ -1,8 +1,8 @@
 {
-  "name": "ToneBoard Keyboard",
+  "name": "ToneBoard Input",
   "manifest_version": 3,
   "version": "0.1",
-  "description": "Learn Chinese tones while typing",
+  "description": "ToneBoard is a Chinese input method that requires you to enter the correct tones while typing simplified Chinese with Pinyin.",
   "background": {
     "service_worker": "background.js",
     "type": "module"
