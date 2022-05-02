@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		0A0BCE832773C0AB00AE2A85 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A0BCE822773C0AB00AE2A85 /* LaunchScreen.storyboard */; };
+		0A0E2001281F67EF00F24D3F /* VoicePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E2000281F67EF00F24D3F /* VoicePlayer.swift */; };
+		0A0E2002281F67EF00F24D3F /* VoicePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E2000281F67EF00F24D3F /* VoicePlayer.swift */; };
+		0A0E2003281F67EF00F24D3F /* VoicePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E2000281F67EF00F24D3F /* VoicePlayer.swift */; };
 		0A1560C8276EA68400E192FF /* InstallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560C7276EA68400E192FF /* InstallView.swift */; };
 		0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CB276EA71800E192FF /* TutorialView.swift */; };
 		0A1560CE276EA79900E192FF /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1560CD276EA79900E192FF /* Components.swift */; };
@@ -40,6 +43,9 @@
 		0A8407272772B2A200A5C047 /* dict.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0A8407252772B2A200A5C047 /* dict.sqlite3 */; };
 		0A8407282772B2A200A5C047 /* dict.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0A8407252772B2A200A5C047 /* dict.sqlite3 */; };
 		0AA6A739276EF5F80043916D /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */; };
+		0AD7B4A2281F6754008D88F1 /* audio.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0AD7B4A1281F6754008D88F1 /* audio.sqlite3 */; };
+		0AD7B4A3281F6754008D88F1 /* audio.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0AD7B4A1281F6754008D88F1 /* audio.sqlite3 */; };
+		0AD7B4A4281F6754008D88F1 /* audio.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 0AD7B4A1281F6754008D88F1 /* audio.sqlite3 */; };
 		0AE3AB6B276ED23600A07914 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3AB6A276ED23600A07914 /* AboutView.swift */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +82,7 @@
 
 /* Begin PBXFileReference section */
 		0A0BCE822773C0AB00AE2A85 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0A0E2000281F67EF00F24D3F /* VoicePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePlayer.swift; sourceTree = "<group>"; };
 		0A1560C7276EA68400E192FF /* InstallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallView.swift; sourceTree = "<group>"; };
 		0A1560CB276EA71800E192FF /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		0A1560CD276EA79900E192FF /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
@@ -99,6 +106,7 @@
 		0A60D60B275D80CA00FFAD22 /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
 		0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedKeyboardViewController.swift; sourceTree = "<group>"; };
 		0A8407252772B2A200A5C047 /* dict.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; path = dict.sqlite3; sourceTree = "<group>"; };
+		0AD7B4A1281F6754008D88F1 /* audio.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; path = audio.sqlite3; sourceTree = "<group>"; };
 		0AE3AB6A276ED23600A07914 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -140,6 +148,7 @@
 		0A60D55C275C865500FFAD22 = {
 			isa = PBXGroup;
 			children = (
+				0AD7B4A1281F6754008D88F1 /* audio.sqlite3 */,
 				0A24AAAC2787652500C8C82B /* Settings.bundle */,
 				0A8407252772B2A200A5C047 /* dict.sqlite3 */,
 				0A60D60A275D80B900FFAD22 /* ToneBoardShared */,
@@ -205,6 +214,7 @@
 				0A46C18527601E0F0079EF13 /* ToneBoardInput.swift */,
 				0A46C1A42760628A0079EF13 /* CandidateDict.swift */,
 				0A63DB22276AB130002242BB /* SharedKeyboardViewController.swift */,
+				0A0E2000281F67EF00F24D3F /* VoicePlayer.swift */,
 			);
 			path = ToneBoardShared;
 			sourceTree = "<group>";
@@ -329,6 +339,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AD7B4A4281F6754008D88F1 /* audio.sqlite3 in Resources */,
 				0A8407282772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -342,6 +353,7 @@
 				0A24AAAD2787652500C8C82B /* Settings.bundle in Resources */,
 				0A60D56D275C865700FFAD22 /* Assets.xcassets in Resources */,
 				0A8407262772B2A200A5C047 /* dict.sqlite3 in Resources */,
+				0AD7B4A2281F6754008D88F1 /* audio.sqlite3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +361,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AD7B4A3281F6754008D88F1 /* audio.sqlite3 in Resources */,
 				0A8407272772B2A200A5C047 /* dict.sqlite3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,6 +378,7 @@
 				0A63DB25276AB130002242BB /* SharedKeyboardViewController.swift in Sources */,
 				0A46C1A3276061650079EF13 /* ToneBoardInput.swift in Sources */,
 				0A46C1A72760628A0079EF13 /* CandidateDict.swift in Sources */,
+				0A0E2003281F67EF00F24D3F /* VoicePlayer.swift in Sources */,
 				0A46C18F27601EAF0079EF13 /* ToneBoardTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -383,6 +397,7 @@
 				0A1560CC276EA71800E192FF /* TutorialView.swift in Sources */,
 				0A46C18627601E0F0079EF13 /* ToneBoardInput.swift in Sources */,
 				0A60D56B275C865500FFAD22 /* ContentView.swift in Sources */,
+				0A0E2001281F67EF00F24D3F /* VoicePlayer.swift in Sources */,
 				0A1560CE276EA79900E192FF /* Components.swift in Sources */,
 				0A60D569275C865500FFAD22 /* ToneBoardApp.swift in Sources */,
 			);
@@ -397,6 +412,7 @@
 				0A60D60D275D80CA00FFAD22 /* KeyboardView.swift in Sources */,
 				0A46C18727601E0F0079EF13 /* ToneBoardInput.swift in Sources */,
 				0A63DB24276AB130002242BB /* SharedKeyboardViewController.swift in Sources */,
+				0A0E2002281F67EF00F24D3F /* VoicePlayer.swift in Sources */,
 				0A46C1A62760628A0079EF13 /* CandidateDict.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -750,7 +766,7 @@
 			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
 			requirement = {
 				kind = exactVersion;
-				version = 0.13.1;
+				version = 0.13.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

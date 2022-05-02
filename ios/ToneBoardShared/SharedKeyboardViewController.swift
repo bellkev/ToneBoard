@@ -27,6 +27,7 @@ class SharedKeyboardViewController: UIInputViewController {
     var heightConstraint: NSLayoutConstraint?
     var bottomConstraint: NSLayoutConstraint?
     var candidateDict = SQLiteCandidateDict()
+    var voicePlayer = VoicePlayer()
     var inputSubscriber: AnyCancellable?
     
     override func updateViewConstraints() {
@@ -47,11 +48,16 @@ class SharedKeyboardViewController: UIInputViewController {
             self.updateCandidates(raw)
             self.updateMarked(raw)
         }
-        let kbView = KeyboardView(proxy: self.textDocumentProxy, setupNextKeyboardButton: { [unowned self]
-            (_ button: UIButton) -> Void in
+        let setup = { [unowned self] (_ button: UIButton) in
             let action = #selector(self.handleInputModeList(from:with:))
             button.addTarget(self, action: action, for: .allTouchEvents)
-        }).environmentObject(inputState)
+        }
+        let playCandidate = { [unowned self] (_ c: Candidate) in
+            if let hash = c.audioHash {
+                self.voicePlayer.play(hash)
+            }
+        }
+        let kbView = KeyboardView(proxy: self.textDocumentProxy, setupNextKeyboardButton: setup, onSelect: playCandidate).environmentObject(inputState)
         let uhc = UIHostingController(rootView: kbView)
         self.addChild(uhc)
         outer.addSubview(uhc.view)

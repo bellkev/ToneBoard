@@ -78,38 +78,6 @@ def ensure_audio(base_path, chars, reading):
     dir = os.path.join(base_path, *subdirs)
     os.makedirs(dir, exist_ok=True)
     path = os.path.join(dir, '%s.mp3' % key)
-    if os.path.isfile(path):
-        print('%s exists, skipping...' % path)
-        return
-    synthesize(path, synth_text)
-
-
-def load_json(path):
-    '''Load JSON version of the ToneBoard dictionary from disk'''
-    with open(path) as f:
-        return json.load(f)
-
-
-def load_chars_readings(path):
-    d = load_json(path)
-    ret = defaultdict(list)
-    for reading, values in d.items():
-        for chars in values:
-            ret[chars].append(reading)
-    return dict(ret)
-
-
-def ensure_all_audio(json_path, audio_path):
-    chars_readings = load_chars_readings(json_path)
-    crs = [(chars, reading) for (chars, readings) in chars_readings.items() for reading in readings]
-    for i, cr in enumerate(crs):
-        chars, reading = cr
-        print('Synthesizing %s (%s) (%d/%d)...' % (chars, reading, i, len(crs)))
-        ensure_audio(audio_path, chars, reading)
-
-
-if __name__ == '__main__':
-    import sys
-    json_path = sys.argv[1]
-    audio_path = sys.argv[2]
-    ensure_all_audio(json_path, audio_path)
+    if not os.path.isfile(path):
+        synthesize(path, synth_text)
+    return path

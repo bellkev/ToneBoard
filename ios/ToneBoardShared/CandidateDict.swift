@@ -11,8 +11,9 @@ import SQLite
 struct Candidate: Codable, Equatable {
     let char: String
     var rareTone = false
+    var audioHash: String?
     private enum CodingKeys : String, CodingKey {
-            case char, rareTone = "rare_tone"
+            case char, rareTone = "rare_tone", audioHash = "audio_hash"
     }
 }
 

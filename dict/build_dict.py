@@ -1,11 +1,14 @@
 from collections import defaultdict, namedtuple
 from functools import partial, reduce
+from hashlib import md5
 from itertools import groupby
 import json
 import os
 import re
 import sqlite3
 import unicodedata as ud
+
+import synthesize_audio as synth
 
 
 COMMON_TONE_THRESHOLD=0.75
@@ -88,7 +91,7 @@ def load_cc_cedict(path):
             yield match.groups()
 
 
-Word = namedtuple('Word', ['trad', 'simp', 'reading', 'freq', 'rare_tone'], defaults=[0, False])
+Word = namedtuple('Word', ['trad', 'simp', 'reading', 'freq', 'rare_tone', 'audio_hash'], defaults=[0, False, None])
 
 
 def cc_words(cc_data):
@@ -152,6 +155,26 @@ def merge_freqs(words):
         yield reduce(freq_reducer, group)
 
 
+def add_audio(audio_db_conn, audio_path, words):
+    cursor = audio_db_conn.cursor()
+    for word in words:
+        data_path = synth.ensure_audio(audio_path, word.simp, word.reading)
+        with open(data_path, 'rb') as f:
+            data = f.read()
+            hash = md5()
+            hash.update(data)
+            digest = hash.hexdigest()
+            result = cursor.execute("SELECT hash from hash_data WHERE hash = ?", (digest,))
+            if result.fetchone():
+                pass
+                # print('Hash %s already present in DB' % digest)
+            else:
+                cursor.execute("INSERT INTO hash_data VALUES (?, ?)", (digest, data))
+                audio_db_conn.commit()
+            yield word._replace(audio_hash=digest)
+
+
+
 def pipeline(*fns):
     def f(x):
         ret = x
@@ -161,7 +184,16 @@ def pipeline(*fns):
     return f
 
 
-def candidate_dict_data(cc_data, ngram_data, unihan_data):
+def do_with_progress(seq):
+    ret = []
+    for i, val in enumerate(seq):
+        if i % 500 == 0:
+            print(i)
+        ret.append(val)
+    return ret
+
+
+def candidate_dict_data(cc_data, ngram_data, unihan_data, audio_db_conn):
     pipe = pipeline(
         cc_words,
         partial(filter, filter_fn()),
@@ -169,6 +201,8 @@ def candidate_dict_data(cc_data, ngram_data, unihan_data):
         expand_subwords,
         merge_freqs,
         partial(scale_char_freqs, unihan_data),
+        # TODO: Don't hardcode audio path, and overhaul config
+        partial(add_audio, audio_db_conn, '/Users/kevin/ToneBoard_Audio')
     )
     return pipe(cc_data)
 
@@ -188,7 +222,10 @@ def build(unihan_path='tmp/unihan.json', one_gram_path='tmp/1grams.txt', cc_cedi
     unihan = load_unihan(unihan_path)
     one_grams = load_one_grams(one_gram_path)
     cc = load_cc_cedict(cc_cedict_path)
-    data = list(candidate_dict_data(cc, one_grams, unihan))
+    # TODO: Don't hardcode audio DB path, and overhaul config
+    with get_sqlite_conn('audio.sqlite3') as audio_db_conn:
+        init_sqlite_audio(audio_db_conn)
+        data = do_with_progress(candidate_dict_data(cc, one_grams, unihan, audio_db_conn))
     apply_tweaks(data)
     return data
 
@@ -207,24 +244,36 @@ def create_sqlite(conn, data):
                           reading TEXT,
                           char TEXT,
                           frequency REAL,
-                          rare_tone INTEGER);""")
+                          rare_tone INTEGER,
+                          audio_hash TEXT);""")
     cursor.execute("CREATE INDEX reading_char_reading ON reading_char(reading);")
     rows = [word._asdict() for word in data]
-    cursor.executemany("INSERT INTO reading_char VALUES (:reading, :simp, :freq, :rare_tone)", rows)
+    cursor.executemany("INSERT INTO reading_char VALUES (:reading, :simp, :freq, :rare_tone, :audio_hash)", rows)
+    conn.commit()
+    conn.close()
+
+
+def init_sqlite_audio(conn):
+    cursor = conn.cursor()
+    # TODO: Consider storing hashes as BLOBS too, would save some space but be a little annoying for troubleshooting
+    cursor.execute("""CREATE TABLE IF NOT EXISTS hash_data(
+                        hash TEXT PRIMARY KEY,
+                        data BLOB
+                    ) WITHOUT ROWID;""")
     conn.commit()
 
 
-def save_sqlite(data, path):
+def get_sqlite_conn(path):
     try:
         os.remove(path)
     except FileNotFoundError:
         pass
-    conn = sqlite3.connect(path)
-    create_sqlite(conn, data)
-    conn.close()
+    return sqlite3.connect(path)
+
 
 if __name__ == '__main__':
     import sys
     d = build(sys.argv[1], sys.argv[2], sys.argv[3])
-    save_sqlite(d, sys.argv[4])
+    conn = get_sqlite_conn(sys.argv[4])
+    create_sqlite(conn, d)
     save_json(d, sys.argv[5])

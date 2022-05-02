@@ -2,5 +2,5 @@
 /ios/ToneBoard.xcodeproj/project.xcworkspace/
 /dict/tmp/
 __pycache__
-dict.sqlite3
+*.sqlite3
 dict.json

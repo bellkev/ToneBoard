@@ -479,6 +479,7 @@ struct KeyboardView: View {
     let proxy: UITextDocumentProxy
     
     var setupNextKeyboardButton: ((UIButton) -> Void)
+    var onSelect: ((Candidate) -> Void)
         
     @EnvironmentObject var inputState: InputState
     
@@ -521,6 +522,7 @@ struct KeyboardView: View {
     func selectCandidate(_ candidate: Candidate) {
         proxy.insertText(candidate.char)
         inputState.rawInput = ""
+        onSelect(candidate)
     }
     
     func newLine() {
@@ -611,7 +613,7 @@ struct KeyboardView_Previews: PreviewProvider {
         return ZStack {
             Rectangle().fill(.gray).opacity(0.5).frame(width:UIScreen.main.bounds.width, height: 300)
 //            Rectangle().fill(.white.opacity(0.5)).frame(width:200, height: 300).offset(x:100, y: 0)
-            KeyboardView(proxy: p, setupNextKeyboardButton: {_ in})
+            KeyboardView(proxy: p, setupNextKeyboardButton: {_ in}, onSelect: {_ in})
                                     .previewInterfaceOrientation(orientation)
                                     .previewDevice("iPhone 8")
                                     .environmentObject(state)
