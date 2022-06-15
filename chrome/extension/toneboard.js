@@ -29,9 +29,12 @@ function handleEvent(e, appState, view, dict) {
     }
     let {newText, preventDefault} = input.handleKeyEvent(appState.input, e, dict);
     // Update DOM
-    // TODO: actually insert at the cursor...
     if (newText) {
-        el.value += newText;
+        let before = el.value.slice(0, el.selectionStart);
+        let after = el.value.slice(el.selectionEnd);
+        el.value = before + newText + after;
+        let cursorLocation = (before + newText).length;
+        el.setSelectionRange(cursorLocation, cursorLocation);
     }
     if (preventDefault) {
         e.preventDefault();
