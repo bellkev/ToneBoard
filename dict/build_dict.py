@@ -79,7 +79,7 @@ def load_one_grams(path):
 
 
 def load_cc_cedict(path):
-    regex = re.compile(r'^(\S+) (\S+) \[(.*?)\]')
+    regex = re.compile(r'^(\S+) (\S+) \[(.*?)\] (.*)')
     with open(path) as f:
         for line in f:
             if not line or line[0] == '#':
@@ -88,14 +88,14 @@ def load_cc_cedict(path):
             yield match.groups()
 
 
-Word = namedtuple('Word', ['trad', 'simp', 'reading', 'freq', 'rare_tone'], defaults=[0, False])
+Word = namedtuple('Word', ['trad', 'simp', 'reading', 'definition', 'freq', 'rare_tone'], defaults=[0, False])
 
 
 def cc_words(cc_data):
-    for traditional, simplified, reading in cc_data:
+    for traditional, simplified, reading, definition in cc_data:
         # TODO: Test for norm_reading
         norm_reading = reading.lower().replace('u:', 'v')
-        yield Word(traditional, simplified, norm_reading)
+        yield Word(traditional, simplified, norm_reading, definition)
 
 
 def filter_fn():
@@ -106,7 +106,8 @@ def filter_fn():
         # See http://www.unicode.org/Public/UNIDATA/Blocks.txt
         is_cjk_chars = all(ord(char) >= 0x3400 for char in word.simp)
         is_short = len(word.simp) <= 4
-        return is_well_formed and is_cjk_chars and is_short
+        is_not_japanese = 'Japanese variant' not in word.definition
+        return is_well_formed and is_cjk_chars and is_short and is_not_japanese
     return f
 
 
@@ -139,7 +140,7 @@ def expand_subwords(words):
         reading_segments = word.reading.split(' ')
         # Add each subword as well as the word itself
         for i in range(1, len(word.simp) + 1):
-            yield Word(word.trad[0:i], word.simp[0:i], ' '.join(reading_segments[0:i]), word.freq)
+            yield word._replace(trad=word.trad[0:i], simp=word.simp[0:i], reading=' '.join(reading_segments[0:i]))
 
 
 def merge_freqs(words):
@@ -180,8 +181,7 @@ def apply_tweaks(dict_data):
             and word.reading == 'ling2']
     assert len(zero_freqs) == 1
     zero_freq = zero_freqs[0]
-    dict_data.append(Word(trad='〇', simp='〇',
-        reading='ling2', freq=zero_freq - 1))
+    dict_data.append(Word(trad='〇', simp='〇', reading='ling2', definition='', freq=zero_freq - 1))
 
 
 def build(unihan_path='tmp/unihan.json', one_gram_path='tmp/1grams.txt', cc_cedict_path='tmp/cc_cedict.txt'):

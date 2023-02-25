@@ -29,30 +29,32 @@ ONE_GRAMS={
 }
 
 CC=[
-    ('東西南北', '东西南北', 'dong1 xi1 nan2 bei3'),
-    ('我', '我', 'wo3'),
-    ('喝', '喝', 'he1'),
-    ('水', '水', 'shui3'),
-    ('非常', '非常', 'fei1 chang2'),
-    ('呵', '呵', 'he1'),
-    ('%', '%', 'pa1'),
-    ('々', '々', 'xx'),
-    ('烏里雅蘇台', '乌里雅苏台', 'wu1 li3 ya3 su1 tai2'),
-    ('咖', '咖', 'ka1'),
-    ('咖啡', '咖啡', 'ka1 fei1'),
-    ('喀', '喀', 'ka1'),
-    ('離', '离', 'li2'),
-    ('离', '离', 'chi1'),
-    ('吃', '吃', 'chi1'),
-    ('還', '还', 'huan2'),
-    ('還', '还', 'hai2'),
-    ('環', '环', 'huan2'),
-    ('哪', '哪', 'na3'),
-    ('哪', '哪', 'na5'),
-    ('嗎', '吗', 'ma5'),
-    ('嗎', '吗', 'ma3'),
-    ('為', '为', 'wei2'),
-    ('為', '为', 'wei4'),
+    ('東西南北', '东西南北', 'dong1 xi1 nan2 bei3', '/east west south north/'),
+    ('我', '我', 'wo3', '/I/me/my/'),
+    ('喝', '喝', 'he1', '/to drink/variant of 嗬[he1]/'),
+    ('水', '水', 'shui3', '/water/river/liquid/beverage/additional charges or income/(of clothes) classifier for number of washes/'),
+    ('非常', '非常', 'fei1 chang2', '/very/very much/unusual/extraordinary/'),
+    ('呵', '呵', 'he1', '/expel breath/my goodness/'),
+    ('%', '%', 'pa1', '/percent (Tw)/'),
+    ('々', '々', 'xx5', '/iteration mark (used to represent a duplicated character)/'),
+    ('烏里雅蘇台', '乌里雅苏台', 'wu1 li3 ya3 su1 tai2', '/Uliastai, the Qing name for outer Mongolia/'),
+    ('咖', '咖', 'ka1', ''),
+    ('咖啡', '咖啡', 'ka1 fei1', ''),
+    ('喀', '喀', 'ka1', ''),
+    ('離', '离', 'li2', ''),
+    ('离', '离', 'chi1', ''),
+    ('吃', '吃', 'chi1', ''),
+    ('還', '还', 'huan2', ''),
+    ('還', '还', 'hai2', ''),
+    ('環', '环', 'huan2', ''),
+    ('哪', '哪', 'na3', ''),
+    ('哪', '哪', 'na5', ''),
+    ('嗎', '吗', 'ma5', ''),
+    ('嗎', '吗', 'ma3', ''),
+    ('為', '为', 'wei2', ''),
+    ('為', '为', 'wei4', ''),
+    ('毎', '毎', 'mei3', '/Japanese variant of 每/'),
+    ('每', '每', 'mei3', '/each/every/'),
 ]
 
 
@@ -98,6 +100,11 @@ def test_ranking():
 
 def test_filter_non_hanzi():
     assert '%' not in DB.query('pa1')
+
+
+def test_filter_japanese():
+    assert '每' in DB.query('mei3')
+    assert '毎' not in DB.query('mei3')
 
 
 def test_well_formed():
