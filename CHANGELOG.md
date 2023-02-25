@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.4
+- Prevent Japanese character variants (e.g. 毎 instead of 每) from appearing as candidates
+
 ## v1.3
 - Added full-width zero ("〇") as another way to represent zero (in addition to "零") for the "ling2" reading
 
