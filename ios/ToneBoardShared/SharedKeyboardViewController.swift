@@ -86,7 +86,10 @@ class SharedKeyboardViewController: UIInputViewController {
     
     override func textDidChange(_ textInput: UITextInput?) {
         // The app has just changed the document's contents, the document context has been updated.
-        inputState.rawInput = ""
+        // Make async to avoid "Publishing changes from within view updates is not allowed..." warnings
+        Task {
+            inputState.rawInput = ""
+        }
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
